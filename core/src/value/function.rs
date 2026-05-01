@@ -31,10 +31,45 @@ pub trait IntoJsFunc<'js, P> {
     fn call<'a>(&self, params: Params<'a, 'js>) -> Result<Value<'js>>;
 }
 
+pub trait IntoFunctionValue<'js> {
+    fn into_function_value(self, ctx: &Ctx<'js>) -> Result<Value<'js>>;
+}
+
+pub fn into_function_value<'js, T>(ctx: &Ctx<'js>, value: T) -> Result<Value<'js>>
+where
+    T: IntoFunctionValue<'js>,
+{
+    value.into_function_value(ctx)
+}
+
+impl<'js, T> IntoFunctionValue<'js> for T
+where
+    T: IntoJs<'js>,
+{
+    fn into_function_value(self, ctx: &Ctx<'js>) -> Result<Value<'js>> {
+        self.into_js(ctx)
+    }
+}
+
 /// A trait for functions callable from JavaScript but static,
 /// Used for implementing callable objects.
 pub trait StaticJsFunction {
     fn call<'a, 'js>(params: Params<'a, 'js>) -> Result<Value<'js>>;
+}
+
+pub fn from_js_func<'js, T, P>(ctx: Ctx<'js>, f: T) -> Result<Function<'js>>
+where
+    T: IntoJsFunc<'js, P> + 'js,
+{
+    Function::new(ctx, f)
+}
+
+pub fn new_class_from_js_func<'js, C, P, F>(ctx: Ctx<'js>, f: F) -> Result<crate::Constructor<'js>>
+where
+    C: JsClass<'js>,
+    F: IntoJsFunc<'js, P> + 'js,
+{
+    crate::Constructor::new_class::<C, F, P>(ctx, f)
 }
 
 /// A JavaScript function.

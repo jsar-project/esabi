@@ -1,0 +1,9 @@
+[package]
+name = "boa-parity-fixtures"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+esabi = { workspace = true, default-features = false, features = ["std", "engine-boa"] }
+serde = { version = "1", features = ["derive"] }

@@ -79,7 +79,7 @@ pub enum Error {
     /// Found a string with a internal null byte while converting
     /// to C string.
     InvalidCStr(FromBytesWithNulError),
-    /// String from rquickjs was not UTF-8
+    /// String from esabi was not UTF-8
     Utf8(Utf8Error),
     /// An io error
     #[cfg(feature = "std")]
@@ -600,11 +600,11 @@ impl<'js> CaughtError<'js> {
 /// Extension trait to easily turn results with [`Error`] into results with [`CaughtError`]
 /// # Usage
 /// ```
-/// # use rquickjs::{Error, Context, Runtime, CaughtError};
+/// # use esabi::{Error, Context, Runtime, CaughtError};
 /// # let rt = Runtime::new().unwrap();
 /// # let ctx = Context::full(&rt).unwrap();
 /// # ctx.with(|ctx|{
-/// use rquickjs::CatchResultExt;
+/// use esabi::CatchResultExt;
 ///
 /// if let Err(CaughtError::Value(err)) = ctx.eval::<(),_>("throw 3").catch(&ctx){
 ///     assert_eq!(err.as_int(),Some(3));

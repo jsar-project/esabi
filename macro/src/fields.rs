@@ -235,28 +235,28 @@ impl Field {
         let accessor = if self.config.get && self.config.set {
             quote! {
                 #crate_name::object::Accessor::new(
-                    |this: #crate_name::function::This<#crate_name::class::OwnedBorrow<'js, Self>>|{
+                    #crate_name::function::Func::from(|this: #crate_name::function::This<#crate_name::class::OwnedBorrow<'js, Self>>|{
                         this.0.#field.clone()
-                    },
-                    |mut this: #crate_name::function::This<#crate_name::class::OwnedBorrowMut<'js, Self>>, v: #ty|{
+                    }),
+                    #crate_name::function::Func::from(|mut this: #crate_name::function::This<#crate_name::class::OwnedBorrowMut<'js, Self>>, v: #ty|{
                         this.0.#field = v;
-                    }
+                    })
                 )
             }
         } else if self.config.get {
             quote! {
                 #crate_name::object::Accessor::new_get(
-                    |this: #crate_name::function::This<#crate_name::class::OwnedBorrow<'js, Self>>|{
+                    #crate_name::function::Func::from(|this: #crate_name::function::This<#crate_name::class::OwnedBorrow<'js, Self>>|{
                         this.0.#field.clone()
-                    },
+                    }),
                 )
             }
         } else if self.config.set {
             quote! {
                 #crate_name::object::Accessor::new_set(
-                    |mut this: #crate_name::function::This<#crate_name::class::OwnedBorrowMut<'js, Self>>, v: #ty|{
+                    #crate_name::function::Func::from(|mut this: #crate_name::function::This<#crate_name::class::OwnedBorrowMut<'js, Self>>, v: #ty|{
                         this.0.#field = v;
-                    }
+                    })
                 )
             }
         } else {

@@ -57,7 +57,7 @@ impl FunctionConfig {
         }
     }
 
-    /// Returns a name under which we can access the rquickjs crate.
+    /// Returns a name under which we can access the esabi crate.
     pub fn crate_name(&self) -> Result<String> {
         if let Some(c) = self.crate_.clone() {
             return Ok(c);
@@ -203,7 +203,7 @@ impl JsFunction {
         quote! {
             impl<'js> #lib_crate::IntoJs<'js> for #js_name{
                 fn into_js(self, ctx: &#lib_crate::Ctx<'js>) -> #lib_crate::Result<#lib_crate::Value<'js>>{
-                    #lib_crate::Function::new(ctx.clone(),#js_name)?.into_js(ctx)
+                    #lib_crate::function::from_js_func(ctx.clone(), #js_name)?.into_js(ctx)
                 }
             }
         }
@@ -228,7 +228,7 @@ impl JsFunction {
             quote! {
                 #arg_extract
                 let res = #rust_function(#arg_apply);
-                #lib_crate::IntoJs::into_js(res,&ctx)
+                #lib_crate::function::into_function_value(&ctx, res)
             }
         }
     }

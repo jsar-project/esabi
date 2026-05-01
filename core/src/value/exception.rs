@@ -91,7 +91,7 @@ impl<'js> Exception<'js> {
     ///
     /// Equivalent to:
     /// ```rust
-    /// # use rquickjs::{Runtime,Context,Exception};
+    /// # use esabi::{Runtime,Context,Exception};
     /// # let rt = Runtime::new().unwrap();
     /// # let ctx = Context::full(&rt).unwrap();
     /// # ctx.with(|ctx|{

@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 
-- Added import attributes to the Loader trait #[601](https://github.com/DelSkayn/rquickjs/pull/601)\
-- Added half support (f16) for Float16Array # [662](https://github.com/DelSkayn/rquickjs/pull/662)
+- Added import attributes to the Loader trait #[601](https://github.com/DelSkayn/esabi/pull/601)\
+- Added half support (f16) for Float16Array # [662](https://github.com/DelSkayn/esabi/pull/662)
 
 ### Added
 
@@ -20,18 +20,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Web IDL semantics for `@@toStringTag`, `@@species`, etc.). Honours `rename`, `configurable`,
   `enumerable`, and a new `writable` flag (which also gates `writable` on `prop`).
 - Added `FromJs` and `IntoJs` derive macros for plain-data structs
-- Added `RQUICKJS_SYS_NO_WASI_SDK` env variable that skips downloading and setting up the WASI SDK when set to `1` #[648](https://github.com/DelSkayn/rquickjs/pull/648)
-- Added `Object::new_proto` for creating objects with a custom or null prototype #[572](https://github.com/DelSkayn/rquickjs/issues/572)
-- Added `Symbol::new`, `Symbol::with_description`, and `Symbol::new_global` for creating local and global symbols from Rust #[672](https://github.com/DelSkayn/rquickjs/pull/672)
+- Added `RQUICKJS_SYS_NO_WASI_SDK` env variable that skips downloading and setting up the WASI SDK when set to `1` #[648](https://github.com/DelSkayn/esabi/pull/648)
+- Added `Object::new_proto` for creating objects with a custom or null prototype #[572](https://github.com/DelSkayn/esabi/issues/572)
+- Added `Symbol::new`, `Symbol::with_description`, and `Symbol::new_global` for creating local and global symbols from Rust #[672](https://github.com/DelSkayn/esabi/pull/672)
 
 ### Changed
 
 - Bump MSRV to 1.87
-- Updated `AsyncContext::async_with` to use async closure syntax #[602](https://github.com/DelSkayn/rquickjs/pull/602)
+- Updated `AsyncContext::async_with` to use async closure syntax #[602](https://github.com/DelSkayn/esabi/pull/602)
 
 ### Deprecated
 
-- Deprecated `async_with!` macro #[602](https://github.com/DelSkayn/rquickjs/pull/602)
+- Deprecated `async_with!` macro #[602](https://github.com/DelSkayn/esabi/pull/602)
 
 ### Added
 
@@ -41,74 +41,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed QuickJS rope strings (`JS_TAG_STRING_ROPE`) not being recognized as strings, causing `type_of()`, `is_string()`, and `as_string()` to fail on large concatenated strings
-- Fixed interrupt handler causing GC assertion failure due to missing `JS_DupContext` on error context from `JS_ExecutePendingJob` #[664](https://github.com/DelSkayn/rquickjs/pull/664)
+- Fixed interrupt handler causing GC assertion failure due to missing `JS_DupContext` on error context from `JS_ExecutePendingJob` #[664](https://github.com/DelSkayn/esabi/pull/664)
 - Fixed cross-thread stack overflow false positives in parallel mode by updating stack baseline before QuickJS C entry points
 - Fixed promise polling not returning Ready variant when exception occurs
 - Fixed promise future aborting on stale pending exceptions by only bailing on uncatchable errors (e.g. interrupt handler)
 - Fixed iterators to use correct IteratorPrototype chain
 - Fixed a latent ABI layout vulnerability in `JS_NewPromiseCapability` FFI boundary by replacing tuple with strictly compatible array
-- `#[rquickjs::class]` now rejects fields whose type implements `JsClass` with a clear compile error; such fields silently dropped nested mutations because the generated getter cloned the value. Wrap the field in `Class<'js, T>` instead #[532](https://github.com/DelSkayn/rquickjs/issues/532)
+- `#[esabi::class]` now rejects fields whose type implements `JsClass` with a clear compile error; such fields silently dropped nested mutations because the generated getter cloned the value. Wrap the field in `Class<'js, T>` instead #[532](https://github.com/DelSkayn/esabi/issues/532)
 <<<<<<< fix/missing-trace-impls
 - Added missing `Trace` implementations for `Constructor`, `Promise`, `Proxy`, `ArrayBuffer`, and `TypedArray`; added `JsLifetime` for `Proxy`; re-exported `Constructor` at the crate root
 =======
-- Fixed `#[qjs(static, rename = PredefinedAtom::...)]` methods failing when the target symbol exists as a non-writable property on `Function.prototype` (e.g. `Symbol.hasInstance`) by defining properties directly on the constructor instead of going through the prototype chain #[315](https://github.com/DelSkayn/rquickjs/issues/315)
+- Fixed `#[qjs(static, rename = PredefinedAtom::...)]` methods failing when the target symbol exists as a non-writable property on `Function.prototype` (e.g. `Symbol.hasInstance`) by defining properties directly on the constructor instead of going through the prototype chain #[315](https://github.com/DelSkayn/esabi/issues/315)
 >>>>>>> master
-- Fixed `#[qjs(static, get/set)]` accessors being placed on the class prototype instead of the constructor #[478](https://github.com/DelSkayn/rquickjs/issues/478)
-- Fixed `Runtime::set_max_stack_size` crashing on large values (e.g. `usize::MAX`) by clamping to avoid a pointer underflow inside QuickJS's stack limit check #[437](https://github.com/DelSkayn/rquickjs/issues/437)
+- Fixed `#[qjs(static, get/set)]` accessors being placed on the class prototype instead of the constructor #[478](https://github.com/DelSkayn/esabi/issues/478)
+- Fixed `Runtime::set_max_stack_size` crashing on large values (e.g. `usize::MAX`) by clamping to avoid a pointer underflow inside QuickJS's stack limit check #[437](https://github.com/DelSkayn/esabi/issues/437)
 
 ## [0.11.0] - 2025-12-16
 
 ### Added
 
-- Added `Proxy` object #[#570](https://github.com/DelSkayn/rquickjs/pull/570)
-- Allow setting filename as an eval option #[#536](https://github.com/DelSkayn/rquickjs/pull/536)
-- Add Iterable allow JS to iterate over Rust iterator #[#564](https://github.com/DelSkayn/rquickjs/pull/564)
-- Add JsIterator to iterate over Javascript Iterator #[#564](https://github.com/DelSkayn/rquickjs/pull/564)
-- Add more trait implementations like AsRef for CString #[#558](https://github.com/DelSkayn/rquickjs/pull/558)
+- Added `Proxy` object #[#570](https://github.com/DelSkayn/esabi/pull/570)
+- Allow setting filename as an eval option #[#536](https://github.com/DelSkayn/esabi/pull/536)
+- Add Iterable allow JS to iterate over Rust iterator #[#564](https://github.com/DelSkayn/esabi/pull/564)
+- Add JsIterator to iterate over Javascript Iterator #[#564](https://github.com/DelSkayn/esabi/pull/564)
+- Add more trait implementations like AsRef for CString #[#558](https://github.com/DelSkayn/esabi/pull/558)
 
 ### Changed
 
-- Bump MSRV to 1.85 #[#531](https://github.com/DelSkayn/rquickjs/pull/531)
-- Update quickjs-ng to #[be664ca](https://github.com/quickjs-ng/quickjs/commit/be664ca1ccd86cbadf8df7348b8e15e77a32a1ba) #[#566](https://github.com/DelSkayn/rquickjs/pull/566)
+- Bump MSRV to 1.85 #[#531](https://github.com/DelSkayn/esabi/pull/531)
+- Update quickjs-ng to #[be664ca](https://github.com/quickjs-ng/quickjs/commit/be664ca1ccd86cbadf8df7348b8e15e77a32a1ba) #[#566](https://github.com/DelSkayn/esabi/pull/566)
 
 ### Fixed
 
-- Fix wasm32 build #[548](https://github.com/DelSkayn/rquickjs/pull/548)
+- Fix wasm32 build #[548](https://github.com/DelSkayn/esabi/pull/548)
 
 ## [0.10.0] - 2025-10-24
 
 ### Added
 
-- Allow `rquickjs-core` to build with `no_std` #[#455](https://github.com/DelSkayn/rquickjs/pull/455)
-- Add `PromiseHook` bindings #[#453](https://github.com/DelSkayn/rquickjs/pull/453)
-- Add `Module::write` options to enable features like `JS_WRITE_OBJ_STRIP_SOURCE` and `JS_WRITE_OBJ_STRIP_DEBUG` #[#443](https://github.com/DelSkayn/rquickjs/pull/443) and #[#518](https://github.com/DelSkayn/rquickjs/pull/518)
-- Allow building with [sanitizer](https://doc.rust-lang.org/beta/unstable-book/compiler-flags/sanitizer.html) #[#425](https://github.com/DelSkayn/rquickjs/pull/425)
-- Add `set_host_promise_rejection_tracker` to `AsyncRuntime` #[#452](https://github.com/DelSkayn/rquickjs/pull/452)
-- Add linux arm64 support to `sys` crate #[#445](https://github.com/DelSkayn/rquickjs/pull/445)
-- Implement `Trace` for `Atom` #[#517](https://github.com/DelSkayn/rquickjs/pull/517)
-- Add `disable-assertions` feature to disable runtime assertions in quickjs #[#535](https://github.com/DelSkayn/rquickjs/pull/535)
-- Add `JS_TAG_SHORT_BIG_INT` tag to support short BigInt #[#458](https://github.com/DelSkayn/rquickjs/pull/458) and #[#519](https://github.com/DelSkayn/rquickjs/pull/519)
+- Allow `esabi-core` to build with `no_std` #[#455](https://github.com/DelSkayn/esabi/pull/455)
+- Add `PromiseHook` bindings #[#453](https://github.com/DelSkayn/esabi/pull/453)
+- Add `Module::write` options to enable features like `JS_WRITE_OBJ_STRIP_SOURCE` and `JS_WRITE_OBJ_STRIP_DEBUG` #[#443](https://github.com/DelSkayn/esabi/pull/443) and #[#518](https://github.com/DelSkayn/esabi/pull/518)
+- Allow building with [sanitizer](https://doc.rust-lang.org/beta/unstable-book/compiler-flags/sanitizer.html) #[#425](https://github.com/DelSkayn/esabi/pull/425)
+- Add `set_host_promise_rejection_tracker` to `AsyncRuntime` #[#452](https://github.com/DelSkayn/esabi/pull/452)
+- Add linux arm64 support to `sys` crate #[#445](https://github.com/DelSkayn/esabi/pull/445)
+- Implement `Trace` for `Atom` #[#517](https://github.com/DelSkayn/esabi/pull/517)
+- Add `disable-assertions` feature to disable runtime assertions in quickjs #[#535](https://github.com/DelSkayn/esabi/pull/535)
+- Add `JS_TAG_SHORT_BIG_INT` tag to support short BigInt #[#458](https://github.com/DelSkayn/esabi/pull/458) and #[#519](https://github.com/DelSkayn/esabi/pull/519)
 
 ### Changed
 
-- Bump MSRV to 1.82 #[#531](https://github.com/DelSkayn/rquickjs/pull/531)
-- Update to 2024 edition #[#473](https://github.com/DelSkayn/rquickjs/pull/473)
-- Export `DriveFuture` #[#491](https://github.com/DelSkayn/rquickjs/pull/491)
-- Switch to `dlopen2` for native module loading #[#513](https://github.com/DelSkayn/rquickjs/pull/513)
+- Bump MSRV to 1.82 #[#531](https://github.com/DelSkayn/esabi/pull/531)
+- Update to 2024 edition #[#473](https://github.com/DelSkayn/esabi/pull/473)
+- Export `DriveFuture` #[#491](https://github.com/DelSkayn/esabi/pull/491)
+- Switch to `dlopen2` for native module loading #[#513](https://github.com/DelSkayn/esabi/pull/513)
 
 ### Fixed
 
-- Fix base objects intrinsic not being enabled in async context #[#442](https://github.com/DelSkayn/rquickjs/pull/442)
-- Fix namespace resolution for JsLifetime in derive macro #[#429](https://github.com/DelSkayn/rquickjs/pull/429)
-- Fix ownership of ctx pointers to be more ergonomic and fix cleanup bugs #[#433](https://github.com/DelSkayn/rquickjs/pull/433)
-- Fix rename option in qjs attribute #[#428](https://github.com/DelSkayn/rquickjs/pull/428)
-- Strip llvm suffix for `*-pc-windows-gnullvm` target #[#506](https://github.com/DelSkayn/rquickjs/pull/506)
+- Fix base objects intrinsic not being enabled in async context #[#442](https://github.com/DelSkayn/esabi/pull/442)
+- Fix namespace resolution for JsLifetime in derive macro #[#429](https://github.com/DelSkayn/esabi/pull/429)
+- Fix ownership of ctx pointers to be more ergonomic and fix cleanup bugs #[#433](https://github.com/DelSkayn/esabi/pull/433)
+- Fix rename option in qjs attribute #[#428](https://github.com/DelSkayn/esabi/pull/428)
+- Strip llvm suffix for `*-pc-windows-gnullvm` target #[#506](https://github.com/DelSkayn/esabi/pull/506)
 
 ## [0.9.0] - 2025-01-29
 
 ### Breaking Changes
 
-- Switching to quickjs-ng from quickjs as base engine #[369](https://github.com/DelSkayn/rquickjs/pull/369)
+- Switching to quickjs-ng from quickjs as base engine #[369](https://github.com/DelSkayn/esabi/pull/369)
 
 This change should bring better performances and features, we are aware that it is bigger in intruction sizes.
 

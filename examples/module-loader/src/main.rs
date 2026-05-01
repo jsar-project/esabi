@@ -1,4 +1,4 @@
-use rquickjs::{
+use esabi::{
     loader::{
         BuiltinLoader, BuiltinResolver, FileResolver, ModuleLoader, NativeLoader, ScriptLoader,
     },

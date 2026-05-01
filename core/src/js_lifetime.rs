@@ -1,16 +1,19 @@
+#[cfg(all(feature = "engine-quickjs", not(feature = "engine-boa")))]
 use crate::{
     atom, value::Constructor, Array, Atom, BigInt, CString, Exception, Function, Module, Object,
     Promise, Proxy, String, Symbol, Value,
 };
+#[cfg(all(feature = "engine-boa", not(feature = "engine-quickjs")))]
+use crate::Ctx;
 
-/// The trait which signifies a type using the rquickjs `'js` lifetime trick for maintaining safety around Javascript values.
+/// The trait which signifies a type using the esabi `'js` lifetime trick for maintaining safety around Javascript values.
 ///
 /// # Safety
 ///
 /// This trait can only be implemented for types which derive a `'js` lifetime from a Javascript
 /// value, directly or indirectly.
 ///
-/// All of the base Javascript types used in rquickjs like [`Value`] have a `'js` lifetime. If a
+/// All of the base Javascript types used in esabi like [`Value`] have a `'js` lifetime. If a
 /// type wants to contains one of those types it must define a lifetime generic. This trait is for
 /// indicating that that lifetime is one derived from a Javascript value. Rquickjs needs to know
 /// about this lifetime so that it is able to ensure safe use of types.
@@ -26,8 +29,8 @@ use crate::{
 ///
 /// The following is a correct implementation of the [`JsLifetime`] trait.
 /// ```
-/// # use rquickjs::JsLifetime;
-/// struct Container<'js>(rquickjs::Object<'js>);
+/// # use esabi::JsLifetime;
+/// struct Container<'js>(esabi::Object<'js>);
 ///
 /// unsafe impl<'js> JsLifetime<'js> for Container<'js>{
 ///     type Changed<'to> = Container<'to>;
@@ -39,7 +42,7 @@ use crate::{
 ///
 /// See correct example for a static type below.
 /// ```
-/// # use rquickjs::JsLifetime;
+/// # use esabi::JsLifetime;
 /// struct Bytes(Vec<u8>);
 ///
 /// unsafe impl<'js> JsLifetime<'js> for Bytes{
@@ -53,8 +56,8 @@ use crate::{
 ///
 /// For example the following is unsound!
 /// ```no_run
-/// # use rquickjs::JsLifetime;
-/// struct Container<'js>(rquickjs::Object<'js>);
+/// # use esabi::JsLifetime;
+/// struct Container<'js>(esabi::Object<'js>);
 ///
 /// unsafe impl<'a,'js> JsLifetime<'js> for Container<'a>{ // WRONG LIFETIME!
 ///     type Changed<'to> = Container<'to>;
@@ -65,16 +68,16 @@ use crate::{
 /// The following is also incorrect
 ///
 /// ```no_run
-/// # use rquickjs::JsLifetime;
+/// # use esabi::JsLifetime;
 /// // Her 'a is not derived from an Javascript value type, but instead the lifetime of a reference.
-/// struct Container<'a,'js>(&'a rquickjs::Object<'js>);
+/// struct Container<'a,'js>(&'a esabi::Object<'js>);
 ///
 /// // Non 'js lifetime marked as a 'js lifetime. Unsound!
 /// unsafe impl<'js> JsLifetime<'js> for Container<'js, 'js>{
 ///     type Changed<'to> = Container<'to,'to>;
 /// }
 /// ```
-/// The lifetime marked must be from an rquickjs type with a defined `<'js>` lifetime, it cannot be a
+/// The lifetime marked must be from an esabi type with a defined `<'js>` lifetime, it cannot be a
 /// the lifetime of reference!
 ///
 pub unsafe trait JsLifetime<'js> {
@@ -82,6 +85,7 @@ pub unsafe trait JsLifetime<'js> {
     type Changed<'to>: 'to;
 }
 
+#[allow(unused_macros)]
 macro_rules! outlive_impls {
     ($($type:ident,)*) => {
         $(
@@ -93,6 +97,38 @@ macro_rules! outlive_impls {
     };
 }
 
+#[cfg(all(feature = "engine-boa", not(feature = "engine-quickjs")))]
+unsafe impl<'js> JsLifetime<'js> for Ctx<'js> {
+    type Changed<'to> = Ctx<'to>;
+}
+
+#[cfg(all(feature = "engine-boa", not(feature = "engine-quickjs")))]
+unsafe impl<'js> JsLifetime<'js> for crate::Value<'js> {
+    type Changed<'to> = crate::Value<'to>;
+}
+
+#[cfg(all(feature = "engine-boa", not(feature = "engine-quickjs")))]
+unsafe impl<'js> JsLifetime<'js> for crate::Object<'js> {
+    type Changed<'to> = crate::Object<'to>;
+}
+
+#[cfg(all(feature = "engine-boa", not(feature = "engine-quickjs")))]
+unsafe impl<'js> JsLifetime<'js> for crate::Function<'js> {
+    type Changed<'to> = crate::Function<'to>;
+}
+
+#[cfg(all(feature = "engine-boa", not(feature = "engine-quickjs")))]
+unsafe impl<'js> JsLifetime<'js> for crate::Promise<'js> {
+    type Changed<'to> = crate::Promise<'to>;
+}
+
+#[cfg(all(feature = "engine-boa", not(feature = "engine-quickjs")))]
+unsafe impl<'js> JsLifetime<'js> for crate::atom::PredefinedAtom {
+    type Changed<'to> = crate::atom::PredefinedAtom;
+}
+
+
+#[cfg(all(feature = "engine-quickjs", not(feature = "engine-boa")))]
 outlive_impls! {
     Value,
     Symbol,
@@ -161,8 +197,10 @@ impl_outlive!(
     core::ops::ControlFlow<B,C>,
     alloc::rc::Rc<T>,
     alloc::sync::Arc<T>,
-    atom::PredefinedAtom,
 );
+
+#[cfg(all(feature = "engine-quickjs", not(feature = "engine-boa")))]
+impl_outlive!(atom::PredefinedAtom,);
 
 #[cfg(feature = "std")]
 impl_outlive!(
@@ -181,6 +219,7 @@ impl_outlive!(
     std::sync::RwLock<T>,
 );
 
+#[cfg(all(feature = "engine-quickjs", not(feature = "engine-boa")))]
 unsafe impl<'js, T: JsLifetime<'js>> JsLifetime<'js> for Module<'js, T> {
     type Changed<'to> = Module<'to, T::Changed<'to>>;
 }

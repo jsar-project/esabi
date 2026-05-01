@@ -1,16 +1,16 @@
-use rquickjs::{module::ModuleDef, Ctx, Function, Result};
+use esabi::{module::ModuleDef, Ctx, Function, Result};
 
 pub struct NativeModule;
 
 impl ModuleDef for NativeModule {
-    fn declare(decl: &rquickjs::module::Declarations) -> Result<()> {
+    fn declare(decl: &esabi::module::Declarations) -> Result<()> {
         decl.declare("n")?;
         decl.declare("s")?;
         decl.declare("f")?;
         Ok(())
     }
 
-    fn evaluate<'js>(ctx: &Ctx<'js>, exports: &rquickjs::module::Exports<'js>) -> Result<()> {
+    fn evaluate<'js>(ctx: &Ctx<'js>, exports: &esabi::module::Exports<'js>) -> Result<()> {
         exports.export("n", 123)?;
         exports.export("s", "abc")?;
         exports.export(

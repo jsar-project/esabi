@@ -19,7 +19,7 @@ use future::WithFuture;
 ///
 /// # Usage
 /// ```
-/// # use rquickjs::{prelude::*, Function, async_with, AsyncRuntime, AsyncContext, Result};
+/// # use esabi::{prelude::*, Function, async_with, AsyncRuntime, AsyncContext, Result};
 /// # use std::time::Duration;
 /// # async fn run(){
 /// let rt = AsyncRuntime::new().unwrap();
@@ -185,7 +185,7 @@ impl AsyncContext {
     /// # Example
     ///
     /// ```
-    /// # use rquickjs::{prelude::*, Function, async_with, AsyncRuntime, AsyncContext, Result};
+    /// # use esabi::{prelude::*, Function, async_with, AsyncRuntime, AsyncContext, Result};
     /// # use std::time::Duration;
     /// # async fn run(){
     /// # let rt = AsyncRuntime::new().unwrap();

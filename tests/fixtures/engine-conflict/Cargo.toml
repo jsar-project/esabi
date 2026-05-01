@@ -1,0 +1,10 @@
+[package]
+name = "engine-conflict-fixture"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+esabi = { path = "../../..", default-features = false, features = ["std", "engine-quickjs", "engine-boa"] }

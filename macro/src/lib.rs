@@ -32,7 +32,7 @@ mod methods;
 mod module;
 mod trace;
 
-/// An attribute for implementing [`JsClass`](rquickjs_core::class::JsClass`) for a Rust type.
+/// An attribute for implementing [`JsClass`](esabi_core::class::JsClass`) for a Rust type.
 ///
 /// # Attribute options
 ///
@@ -44,7 +44,7 @@ mod trace;
 ///
 /// | **Option**   | **Value** | **Description**                                                                                                                                                                         |
 /// |--------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-/// | `crate`      | String    | Changes the name from which the attribute tries to use rquickjs types. Use when the name behind which the rquickjs crate is declared is not properly resolved by the macro.             |
+/// | `crate`      | String    | Changes the name from which the attribute tries to use esabi types. Use when the name behind which the esabi crate is declared is not properly resolved by the macro.                |
 /// | `rename`     | String    | Changes the name of the implemented class on the JavaScript side.                                                                                                                       |
 /// | `rename_all` | Casing    | Converts the case of all the fields of this struct which have implement accessors. Can be one of `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase`,`snake_case`, or `SCREAMING_SNAKE` |
 /// | `frozen`     | Flag      | Changes the class implementation to only allow borrowing immutably.  Trying to borrow mutably will result in an error.                                                                  |
@@ -68,14 +68,14 @@ mod trace;
 ///
 /// # Example
 /// ```
-/// use rquickjs::{class::Trace, CatchResultExt, Class, Context, Object, Runtime, JsLifetime};
+/// use esabi::{class::Trace, CatchResultExt, Class, Context, Object, Runtime, JsLifetime};
 ///
 /// /// Implement JsClass for TestClass.
 /// /// This allows passing any instance of TestClass straight to JavaScript.
 /// /// It is command to also add #[derive(Trace)] as all types which implement JsClass need to
 /// /// also implement trace.
 /// #[derive(Trace, JsLifetime)]
-/// #[rquickjs::class(rename_all = "camelCase")]
+/// #[esabi::class(rename_all = "camelCase")]
 /// pub struct TestClass<'js> {
 ///     /// These attribute make the accessible from JavaScript with getters and setters.
 ///     /// As we used `rename_all = "camelCase"` in the attribute it will be called `innerObject`
@@ -124,7 +124,7 @@ mod trace;
 /// This attribute cannot be combined with [`macro@FromJs`] or
 /// [`macro@IntoJs`] on the same type. `#[class]` already generates a
 /// `FromJs`/`IntoJs` pair that round-trips through a
-/// [`Class<Self>`](rquickjs_core::class::Class) instance, whereas the
+/// [`Class<Self>`](esabi_core::class::Class) instance, whereas the
 /// derives round-trip through a plain JS object. If both are present the
 /// macro emits a targeted compile error pointing at the offending derive.
 #[proc_macro_attribute]
@@ -164,7 +164,7 @@ pub fn function(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 /// A attribute for implementing methods for a class.
 ///
 /// This attribute can be added to a impl block which implements methods for a type which uses the
-/// [`macro@class`] attribute to derive [`JsClass`](rquickjs_core::class::JsClass).
+/// [`macro@class`] attribute to derive [`JsClass`](esabi_core::class::JsClass).
 ///
 /// # Limitations
 /// Due to limitations in the Rust type system this attribute can be used on only one impl block
@@ -180,7 +180,7 @@ pub fn function(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 ///
 /// | **Option**   | **Value** | **Description**                                                                                                                                                                         |
 /// |--------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-/// | `crate`      | String    | Changes the name from which the attribute tries to use rquickjs types. Use when the name behind which the rquickjs crate is declared is not properly resolved by the macro.             |
+/// | `crate`      | String    | Changes the name from which the attribute tries to use esabi types. Use when the name behind which the esabi crate is declared is not properly resolved by the macro.                |
 /// | `rename`     | String    | Changes the name of the implemented class on the JavaScript side.                                                                                                                       |
 /// | `rename_all` | Casing    | Converts the case of all the fields of this struct which have implement accessors. Can be one of `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase`,`snake_case`, or `SCREAMING_SNAKE` |
 ///
@@ -198,26 +198,26 @@ pub fn function(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 /// | `enumerable`   | Flag                                                              | Makes the method, if it is a getter, setter or `prop`, enumerable in JavaScript.                |
 /// | `configurable` | Flag                                                              | Makes the method, if it is a getter, setter or `prop`, configurable in JavaScript (i.e. the descriptor can later be redefined or deleted). |
 /// | `writable`     | Flag                                                              | Only valid together with `prop`: makes the data property writable from JavaScript. Defaults to non-writable, matching Web IDL defaults for things like `@@toStringTag`. |
-/// | `rename`       | String or [`PredefinedAtom`](rquickjs_core::atom::PredefinedAtom) | Changes the name of the field getter and/or setter to the specified name in JavaScript.         |
+/// | `rename`       | String or [`PredefinedAtom`](esabi_core::atom::PredefinedAtom) | Changes the name of the field getter and/or setter to the specified name in JavaScript.         |
 /// | `static`       | Flag                                                              | Makes the method a static method i.e. defined on the type constructor instead of the prototype. |
 /// | `constructor`  | Flag                                                              | Marks this method a the constructor for this type.                                              |
 /// | `skip`         | Flag                                                              | Skips defining this method on the JavaScript class.                                             |
 ///
 /// # Example
 /// ```
-/// use rquickjs::{
+/// use esabi::{
 ///     atom::PredefinedAtom, class::Trace, prelude::Func, CatchResultExt, Class, Context, Ctx,
 ///     Object, Result, Runtime, JsLifetime
 /// };
 ///
 /// #[derive(Trace, JsLifetime)]
-/// #[rquickjs::class]
+/// #[esabi::class]
 /// pub struct TestClass {
 ///     value: u32,
 ///     another_value: u32,
 /// }
 ///
-/// #[rquickjs::methods]
+/// #[esabi::methods]
 /// impl TestClass {
 ///     /// Marks a method as a constructor.
 ///     /// This method will be used when a new TestClass object is created from JavaScript.
@@ -343,7 +343,7 @@ pub fn methods(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 /// An attribute for implementing exotic methods for a class.
 ///
 /// This attribute can be added to a impl block which implements methods for a type which uses the
-/// [`macro@class`] attribute to derive [`JsClass`](rquickjs_core::class::JsClass) with the `exotic`
+/// [`macro@class`] attribute to derive [`JsClass`](esabi_core::class::JsClass) with the `exotic`
 ///
 /// # Limitations
 /// Due to limitations in the Rust type system this attribute can be used on only one impl block
@@ -363,15 +363,15 @@ pub fn methods(attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 ///
 /// # Example
 /// ```
-/// use rquickjs::{class::Trace, JsLifetime, Context, Runtime, Atom, Class};
+/// use esabi::{class::Trace, JsLifetime, Context, Runtime, Atom, Class};
 ///
 /// #[derive(Trace, JsLifetime)]
-/// #[rquickjs::class(exotic)]
+/// #[esabi::class(exotic)]
 /// pub struct TestClass {
 ///     value: u32,
 /// }
 ///
-/// #[rquickjs::exotic]
+/// #[esabi::exotic]
 /// impl TestClass {
 ///     #[qjs(get)]
 ///     pub fn value(&self, atom: Atom<'_>) -> Option<u32> {
@@ -437,7 +437,7 @@ pub fn exotic(_attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 ///
 /// | **Option**     | **Value** | **Description**                                                                                                                                                                        |
 /// |----------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-/// | `crate`        | String    | Changes the name from which the attribute tries to use rquickjs types. Use when the name behind which the rquickjs crate is declared is not properly resolved by the macro.            |
+/// | `crate`        | String    | Changes the name from which the attribute tries to use esabi types. Use when the name behind which the esabi crate is declared is not properly resolved by the macro.               |
 /// | `rename`       | String    | Changes the name of the implemented module on the JavaScript side.                                                                                                                     |
 /// | `rename_vars`  | Casing    | Alters the name of all items exported as JavaScript values by changing the case.  Can be one of `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase`,`snake_case`, or `SCREAMING_SNAKE` |
 /// | `rename_types` | Casing    | Alters the name of all items exported as JavaScript classes by changing the case. Can be one of `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase`,`snake_case`, or `SCREAMING_SNAKE` |
@@ -459,16 +459,16 @@ pub fn exotic(_attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 /// # Example
 ///
 /// ```
-/// use rquickjs::{CatchResultExt, Context, Module, Runtime};
+/// use esabi::{CatchResultExt, Context, Module, Runtime};
 ///
 /// /// A class which will be exported from the module.
-/// #[derive(rquickjs::class::Trace, rquickjs::JsLifetime)]
-/// #[rquickjs::class]
+/// #[derive(esabi::class::Trace, esabi::JsLifetime)]
+/// #[esabi::class]
 /// pub struct Test {
 ///     foo: u32,
 /// }
 ///
-/// #[rquickjs::methods]
+/// #[esabi::methods]
 /// impl Test {
 ///     #[qjs(constructor)]
 ///     pub fn new() -> Test {
@@ -482,10 +482,10 @@ pub fn exotic(_attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 ///     }
 /// }
 ///
-/// #[rquickjs::module(rename_vars = "camelCase")]
+/// #[esabi::module(rename_vars = "camelCase")]
 /// mod test_mod {
 ///     /// Imports and other declarations which aren't `pub` won't be exported.
-///     use rquickjs::Ctx;
+///     use esabi::Ctx;
 ///
 ///     /// You can even use `use` to export types from outside.
 ///     ///
@@ -497,14 +497,14 @@ pub fn exotic(_attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 ///     pub use super::Test as RenamedTest;
 ///
 ///     /// A class which will be exported from the module under the name `FooBar`.
-///     #[derive(rquickjs::class::Trace, rquickjs::JsLifetime)]
-///     #[rquickjs::class(rename = "FooBar")]
+///     #[derive(esabi::class::Trace, esabi::JsLifetime)]
+///     #[esabi::class(rename = "FooBar")]
 ///     pub struct Test2 {
 ///         bar: u32,
 ///     }
 ///
 ///     /// Implement methods for the class like normal.
-///     #[rquickjs::methods]
+///     #[esabi::methods]
 ///     impl Test2 {
 ///         /// A constructor is required for exporting types.
 ///         #[qjs(constructor)]
@@ -526,7 +526,7 @@ pub fn exotic(_attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 ///     /// If your module doesn't quite fit with how this macro exports you can manually export from
 ///     /// the declare and evaluate functions.
 ///     #[qjs(declare)]
-///     pub fn declare(declare: &rquickjs::module::Declarations) -> rquickjs::Result<()> {
+///     pub fn declare(declare: &esabi::module::Declarations) -> esabi::Result<()> {
 ///         declare.declare("aManuallyExportedValue")?;
 ///         Ok(())
 ///     }
@@ -534,14 +534,14 @@ pub fn exotic(_attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 ///     #[qjs(evaluate)]
 ///     pub fn evaluate<'js>(
 ///         _ctx: &Ctx<'js>,
-///         exports: &rquickjs::module::Exports<'js>,
-///     ) -> rquickjs::Result<()> {
+///         exports: &esabi::module::Exports<'js>,
+///     ) -> esabi::Result<()> {
 ///         exports.export("aManuallyExportedValue", "Some Value")?;
 ///         Ok(())
 ///     }
 ///
 ///     /// You can also export functions.
-///     #[rquickjs::function]
+///     #[esabi::function]
 ///     pub fn foo() -> u32 {
 ///         1 + 1
 ///     }
@@ -561,7 +561,7 @@ pub fn exotic(_attr: TokenStream1, item: TokenStream1) -> TokenStream1 {
 ///     ctx.with(|ctx| {
 ///          // These modules are declared like normal with the declare_def function.
 ///          // The name of the module is js_ + the name of the module. This prefix can be changed
-///          // by writing for example `#[rquickjs::module(prefix = "prefix_")]`.
+///          // by writing for example `#[esabi::module(prefix = "prefix_")]`.
 ///          Module::declare_def::<js_test_mod, _>(ctx.clone(), "test").unwrap();
 ///          let _ = Module::evaluate(
 ///              ctx.clone(),
@@ -603,13 +603,13 @@ pub fn trace(stream: TokenStream1) -> TokenStream1 {
     }
 }
 
-/// A macro for deriving [`FromJs`](rquickjs_core::FromJs) for plain-data structs.
+/// A macro for deriving [`FromJs`](esabi_core::FromJs) for plain-data structs.
 ///
 /// Generated impls treat the Rust value as a plain JavaScript object (for
 /// named-field structs), a JavaScript array (for tuple structs), or
 /// `undefined` (for unit structs) and read each field in turn via
-/// [`Object::get`](rquickjs_core::Object::get) or
-/// [`Array::get`](rquickjs_core::Array::get).
+/// [`Object::get`](esabi_core::Object::get) or
+/// [`Array::get`](esabi_core::Array::get).
 ///
 /// # Attribute options
 ///
@@ -618,14 +618,14 @@ pub fn trace(stream: TokenStream1) -> TokenStream1 {
 ///
 /// | **Option**   | **Scope**  | **Value** | **Description**                                                                                                                                                                |
 /// |--------------|------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-/// | `crate`      | Container  | String    | Path of the rquickjs crate, in case the macro cannot resolve it automatically.                                                                                                 |
+/// | `crate`      | Container  | String    | Path of the esabi crate, in case the macro cannot resolve it automatically.                                                                                                 |
 /// | `rename_all` | Container  | Casing    | Rewrites every field name using the given case (`lowercase`, `UPPERCASE`, `camelCase`, `PascalCase`, `snake_case`, or `SCREAMING_SNAKE`) before reading it from the JS object. |
 /// | `rename`     | Field      | String    | Use the supplied string as the JavaScript property name instead of the Rust identifier.                                                                                        |
 ///
 /// # Example
 ///
 /// ```
-/// use rquickjs::{Context, FromJs, Runtime};
+/// use esabi::{Context, FromJs, Runtime};
 ///
 /// #[derive(Debug, PartialEq, FromJs)]
 /// #[qjs(rename_all = "camelCase")]
@@ -648,8 +648,8 @@ pub fn trace(stream: TokenStream1) -> TokenStream1 {
 /// # Incompatibility with [`macro@class`]
 ///
 /// This derive cannot be stacked on a type that is also tagged with
-/// `#[rquickjs::class]`. `#[class]` already generates a `FromJs` impl that
-/// round-trips through a [`Class<Self>`](rquickjs_core::class::Class)
+/// `#[esabi::class]`. `#[class]` already generates a `FromJs` impl that
+/// round-trips through a [`Class<Self>`](esabi_core::class::Class)
 /// instance, whereas this derive reads field-by-field from a plain JS
 /// object. The two representations are mutually exclusive; combining them
 /// produces a compile error pointing at the offending derive.
@@ -662,13 +662,13 @@ pub fn from_js(stream: TokenStream1) -> TokenStream1 {
     }
 }
 
-/// A macro for deriving [`IntoJs`](rquickjs_core::IntoJs) for plain-data structs.
+/// A macro for deriving [`IntoJs`](esabi_core::IntoJs) for plain-data structs.
 ///
 /// Generated impls construct a JavaScript object (for named-field structs),
 /// a JavaScript array (for tuple structs), or `undefined` (for unit structs)
 /// and write each field in turn via
-/// [`Object::set`](rquickjs_core::Object::set) or
-/// [`Array::set`](rquickjs_core::Array::set).
+/// [`Object::set`](esabi_core::Object::set) or
+/// [`Array::set`](esabi_core::Array::set).
 ///
 /// The supported `#[qjs(...)]` attributes are the same as for
 /// [`macro@FromJs`]; see its documentation for details.
@@ -676,7 +676,7 @@ pub fn from_js(stream: TokenStream1) -> TokenStream1 {
 /// # Example
 ///
 /// ```
-/// use rquickjs::{CatchResultExt, Context, IntoJs, Runtime};
+/// use esabi::{CatchResultExt, Context, IntoJs, Runtime};
 ///
 /// #[derive(IntoJs)]
 /// struct Pair(u32, String);
@@ -696,8 +696,8 @@ pub fn from_js(stream: TokenStream1) -> TokenStream1 {
 /// # Incompatibility with [`macro@class`]
 ///
 /// This derive cannot be stacked on a type that is also tagged with
-/// `#[rquickjs::class]`. `#[class]` already generates an `IntoJs` impl that
-/// round-trips through a [`Class<Self>`](rquickjs_core::class::Class)
+/// `#[esabi::class]`. `#[class]` already generates an `IntoJs` impl that
+/// round-trips through a [`Class<Self>`](esabi_core::class::Class)
 /// instance, whereas this derive writes the value as a plain JS object.
 /// The two representations are mutually exclusive; combining them produces
 /// a compile error pointing at the offending derive.
@@ -720,7 +720,7 @@ pub fn into_js(stream: TokenStream1) -> TokenStream1 {
 /// # Usage
 ///
 /// ```
-/// use rquickjs::{embed, loader::Bundle, CatchResultExt, Context, Module, Runtime};
+/// use esabi::{embed, loader::Bundle, CatchResultExt, Context, Module, Runtime};
 ///
 /// /// load the `my_module.js` file and name it myModule
 /// static BUNDLE: Bundle = embed! {

@@ -1,7 +1,7 @@
-use rquickjs::{class::Trace, CatchResultExt, Class, Context, JsLifetime, Object, Runtime};
+use esabi::{class::Trace, CatchResultExt, Class, Context, JsLifetime, Object, Runtime};
 
 #[derive(Trace, JsLifetime)]
-#[rquickjs::class(rename_all = "camelCase")]
+#[esabi::class(rename_all = "camelCase")]
 pub struct TestClass<'js> {
     #[qjs(get, set)]
     inner_object: Object<'js>,

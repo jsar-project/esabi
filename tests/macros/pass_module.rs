@@ -1,12 +1,12 @@
-use rquickjs::{CatchResultExt, Context, Module, Runtime};
+use esabi::{CatchResultExt, Context, Module, Runtime};
 
-#[derive(rquickjs::class::Trace, rquickjs::JsLifetime)]
-#[rquickjs::class]
+#[derive(esabi::class::Trace, esabi::JsLifetime)]
+#[esabi::class]
 pub struct Test {
     foo: u32,
 }
 
-#[rquickjs::methods]
+#[esabi::methods]
 impl Test {
     #[qjs(constructor)]
     pub fn new() -> Test {
@@ -20,10 +20,10 @@ impl Default for Test {
     }
 }
 
-#[rquickjs::module(rename_vars = "camelCase")]
+#[esabi::module(rename_vars = "camelCase")]
 mod test_mod {
     /// Imports and other declarations which aren't `pub` won't be exported.
-    use rquickjs::Ctx;
+    use esabi::Ctx;
 
     /// You can even use `use` to export types from outside.
     ///
@@ -31,14 +31,14 @@ mod test_mod {
     /// So this won't work for functions.
     pub use super::Test;
 
-    #[derive(rquickjs::class::Trace, rquickjs::JsLifetime)]
-    #[rquickjs::class(rename = "FooBar")]
+    #[derive(esabi::class::Trace, esabi::JsLifetime)]
+    #[esabi::class(rename = "FooBar")]
     pub struct Test2 {
         bar: u32,
     }
 
     /// Implement methods for the class like normal.
-    #[rquickjs::methods]
+    #[esabi::methods]
     impl Test2 {
         /// A constructor is required for exporting types.
         #[qjs(constructor)]
@@ -60,7 +60,7 @@ mod test_mod {
     /// If our module doesn't quite fit with how this macro exports you can manually export from
     /// the declare and evaluate functions.
     #[qjs(declare)]
-    pub fn declare(declare: &rquickjs::module::Declarations) -> rquickjs::Result<()> {
+    pub fn declare(declare: &esabi::module::Declarations) -> esabi::Result<()> {
         declare.declare("aManuallyExportedValue")?;
         Ok(())
     }
@@ -68,19 +68,19 @@ mod test_mod {
     #[qjs(evaluate)]
     pub fn evaluate<'js>(
         _ctx: &Ctx<'js>,
-        exports: &rquickjs::module::Exports<'js>,
-    ) -> rquickjs::Result<()> {
+        exports: &esabi::module::Exports<'js>,
+    ) -> esabi::Result<()> {
         exports.export("aManuallyExportedValue", "Some Value")?;
         Ok(())
     }
 
     /// You can also export functions.
-    #[rquickjs::function]
+    #[esabi::function]
     pub fn foo() -> u32 {
         1 + 1
     }
 
-    #[rquickjs::function]
+    #[esabi::function]
     #[qjs(rename = "renamedFoo")]
     pub fn renamed_foo() -> u32 {
         1 + 2

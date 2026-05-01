@@ -1,16 +1,16 @@
-use rquickjs::{
+use esabi::{
     atom::PredefinedAtom, class::Trace, prelude::Func, CatchResultExt, Class, Context, Ctx,
     JsLifetime, Object, Result, Runtime,
 };
 
 #[derive(Trace, JsLifetime)]
-#[rquickjs::class]
+#[esabi::class]
 pub struct TestClass {
     value: u32,
     another_value: u32,
 }
 
-#[rquickjs::methods]
+#[esabi::methods]
 impl TestClass {
     #[qjs(constructor)]
     pub fn new(value: u32) -> Self {
@@ -46,7 +46,7 @@ impl TestClass {
     }
 
     #[qjs(static, rename = PredefinedAtom::SymbolHasInstance)]
-    pub fn has_instance<'js>(_value: rquickjs::Value<'js>) -> bool {
+    pub fn has_instance<'js>(_value: esabi::Value<'js>) -> bool {
         false
     }
 

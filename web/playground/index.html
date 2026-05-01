@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Boa Backend Playground</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <p class="eyebrow">esabi / engine-boa</p>
+        <h1>Boa Playground</h1>
+        <p class="lede">
+          Inspect the current Boa support surface, run module-based snippets, and verify
+          `ModuleDef` imports directly in the browser.
+        </p>
+      </header>
+
+      <main class="grid">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Examples</h2>
+            <div id="examples" class="chip-row"></div>
+          </div>
+          <label class="label" for="editor">Module Source</label>
+          <textarea id="editor" spellcheck="false"></textarea>
+          <div class="toolbar">
+            <button id="run" type="button">Run Playground</button>
+            <span id="status" class="status">Loading wasm runner...</span>
+          </div>
+        </section>
+
+        <section class="stack">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Run Output</h2>
+            </div>
+            <div class="result-grid">
+              <div>
+                <p class="label">Result</p>
+                <pre id="result">Not run yet.</pre>
+              </div>
+              <div>
+                <p class="label">Logs</p>
+                <pre id="logs">No logs.</pre>
+              </div>
+              <div>
+                <p class="label">Error</p>
+                <pre id="error">No errors.</pre>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Support Matrix</h2>
+            </div>
+            <div id="support" class="support-list"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

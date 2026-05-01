@@ -1,7 +1,7 @@
-use rquickjs::{class::Trace, Atom, Context, JsLifetime, Result, Runtime, Value};
+use esabi::{class::Trace, Atom, Context, JsLifetime, Result, Runtime, Value};
 
 #[derive(Trace, JsLifetime)]
-#[rquickjs::class(exotic)]
+#[esabi::class(exotic)]
 pub struct TestClass {
     value: i32,
 }
@@ -12,7 +12,7 @@ impl TestClass {
     }
 }
 
-#[rquickjs::exotic]
+#[esabi::exotic]
 impl TestClass {
     #[qjs(get)]
     pub fn value(&self, atom: Atom<'_>) -> Option<i32> {

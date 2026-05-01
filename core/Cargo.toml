@@ -1,5 +1,5 @@
 [package]
-name = "rquickjs-core"
+name = "esabi-core"
 version = "0.11.0"
 authors = ["Mees Delzenne <mees.delzenne@gmail.com>", "K. <kayo@illumium.org>"]
 edition = "2021"
@@ -8,13 +8,14 @@ readme = "README.md"
 description = "High level bindings to the QuickJS JavaScript engine"
 keywords = ["quickjs", "ecmascript", "javascript", "es6", "es2020"]
 categories = ["api-bindings"]
-repository = "https://github.com/DelSkayn/rquickjs.git"
+repository = "https://github.com/DelSkayn/esabi.git"
 
 [package.metadata.docs.rs]
 features = ["full-async", "doc-cfg"]
 
 [dependencies]
-rquickjs-sys = { workspace = true }
+esabi-sys = { workspace = true, optional = true }
+boa_engine = { version = "0.21.0", optional = true }
 hashbrown = { version = "0.17" }
 phf = { version = "0.13", optional = true }
 indexmap = { version = "2", optional = true }
@@ -27,6 +28,11 @@ relative-path = { version = "2.0", optional = true, default-features = false, fe
 ] }
 half = { version = "2.7.1", optional = true }
 
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+# Enable getrandom's JavaScript backend for Boa's rand dependency chain on wasm32-unknown-unknown.
+getrandom = { version = "0.3", features = ["wasm_js"] }
+js-sys = "0.3"
+
 [dev-dependencies]
 futures-rs = { package = "futures", version = "0.3" }
 tokio = { version = "1", default-features = false, features = [
@@ -35,17 +41,30 @@ tokio = { version = "1", default-features = false, features = [
   "macros",
   "sync",
 ] }
-rquickjs.path = "../"
+esabi = { path = "../" }
 approx = "0.5"
 trybuild = "1"
 
 [features]
-default = ["std"]
+default = ["std", "engine-quickjs"]
 
 std = ["relative-path?/std"]
 
+# Select the JavaScript engine backend.
+engine-quickjs = ["dep:esabi-sys"]
+engine-boa = ["std", "dep:boa_engine"]
+
 # Almost all features excluding "parallel" and support for async runtimes
-full = ["std", "chrono", "loader", "dyn-load", "either", "indexmap", "half"]
+full = [
+  "engine-quickjs",
+  "std",
+  "chrono",
+  "loader",
+  "dyn-load",
+  "either",
+  "indexmap",
+  "half",
+]
 
 # Almost all features excluding "parallel"
 full-async = ["full", "futures"]
@@ -55,7 +74,7 @@ chrono = ["dep:chrono"]
 
 # Use bindgen to generate bindings at compile-type
 # otherwise bundled bindings will be used
-bindgen = ["rquickjs-sys/bindgen"]
+bindgen = ["engine-quickjs", "esabi-sys/bindgen"]
 
 # Enable support of parallel execution
 parallel = ["std", "tokio/rt-multi-thread"]
@@ -83,22 +102,22 @@ futures = ["dep:async-lock"]
 multi-ctx = []
 
 # Enable QuickJS dumps for debug
-dump-bytecode = ["rquickjs-sys/dump-bytecode"]
-dump-gc = ["rquickjs-sys/dump-gc"]
-dump-gc-free = ["rquickjs-sys/dump-gc-free"]
-dump-free = ["rquickjs-sys/dump-free"]
+dump-bytecode = ["engine-quickjs", "esabi-sys/dump-bytecode"]
+dump-gc = ["engine-quickjs", "esabi-sys/dump-gc"]
+dump-gc-free = ["engine-quickjs", "esabi-sys/dump-gc-free"]
+dump-free = ["engine-quickjs", "esabi-sys/dump-free"]
 # Dump JS values which still alive when runtime is freed
-dump-leaks = ["rquickjs-sys/dump-leaks"]
-dump-mem = ["rquickjs-sys/dump-mem"]
-dump-objects = ["rquickjs-sys/dump-objects"]
-dump-atoms = ["rquickjs-sys/dump-atoms"]
-dump-shapes = ["rquickjs-sys/dump-shapes"]
-dump-module-resolve = ["rquickjs-sys/dump-module-resolve"]
-dump-promise = ["rquickjs-sys/dump-promise"]
-dump-read-object = ["rquickjs-sys/dump-read-object"]
+dump-leaks = ["engine-quickjs", "esabi-sys/dump-leaks"]
+dump-mem = ["engine-quickjs", "esabi-sys/dump-mem"]
+dump-objects = ["engine-quickjs", "esabi-sys/dump-objects"]
+dump-atoms = ["engine-quickjs", "esabi-sys/dump-atoms"]
+dump-shapes = ["engine-quickjs", "esabi-sys/dump-shapes"]
+dump-module-resolve = ["engine-quickjs", "esabi-sys/dump-module-resolve"]
+dump-promise = ["engine-quickjs", "esabi-sys/dump-promise"]
+dump-read-object = ["engine-quickjs", "esabi-sys/dump-read-object"]
 
 # Disable QuickJS for faster performance
-disable-assertions = ["rquickjs-sys/disable-assertions"]
+disable-assertions = ["engine-quickjs", "esabi-sys/disable-assertions"]
 
 # Enable compilation tests
 compile-tests = []

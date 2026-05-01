@@ -8,11 +8,11 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
-[dependencies.rquickjs]
+[dependencies.esabi]
 path = "../.."
 default-features = false
 features = ["futures", "rust-alloc", "std"]
 
 [features]
 default = ["macro"]
-macro = ["rquickjs/macro"]
+macro = ["esabi/macro"]

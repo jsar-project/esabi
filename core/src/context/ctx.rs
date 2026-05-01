@@ -243,7 +243,7 @@ impl<'js> Ctx<'js> {
     ///
     /// # Usage
     /// ```
-    /// # use rquickjs::{Error, Context, Runtime};
+    /// # use esabi::{Error, Context, Runtime};
     /// # let rt = Runtime::new().unwrap();
     /// # let ctx = Context::full(&rt).unwrap();
     /// # ctx.with(|ctx|{

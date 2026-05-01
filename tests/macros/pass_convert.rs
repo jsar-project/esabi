@@ -1,4 +1,4 @@
-use rquickjs::{class::Trace, CatchResultExt, Context, FromJs, IntoJs, JsLifetime, Runtime};
+use esabi::{class::Trace, CatchResultExt, Context, FromJs, IntoJs, JsLifetime, Runtime};
 
 #[derive(Debug, PartialEq, Eq, FromJs, IntoJs)]
 #[qjs(rename_all = "camelCase")]
@@ -12,7 +12,7 @@ struct RenamedFields {
 struct Pair(u32, String);
 
 #[derive(Clone, Debug, PartialEq, Eq, Trace, JsLifetime)]
-#[rquickjs::class]
+#[esabi::class]
 struct JsClassShape {
     value: u32,
 }

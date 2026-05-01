@@ -1,4 +1,4 @@
-use rquickjs::{prelude::*, AsyncContext, AsyncRuntime};
+use esabi::{prelude::*, AsyncContext, AsyncRuntime};
 
 pub async fn test() {
     let rt = AsyncRuntime::new().unwrap();

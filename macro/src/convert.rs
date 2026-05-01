@@ -54,7 +54,7 @@ impl ConvertConfig {
 }
 
 /// Reports a targeted compile error when the struct we're deriving `FromJs`
-/// or `IntoJs` for is also tagged with `#[rquickjs::class]`. `#[class]`
+/// or `IntoJs` for is also tagged with `#[esabi::class]`. `#[class]`
 /// already emits its own `FromJs`/`IntoJs` pair that round-trips through a
 /// `Class<Self>` instance, whereas the derives round-trip through a plain
 /// JS object/array, so combining them produces a conflicting-impl E0119.
@@ -70,15 +70,15 @@ fn ensure_not_on_class(attrs: &[syn::Attribute], trait_name: &str) -> Result<()>
             continue;
         }
         let is_ours =
-            path.segments.len() == 1 || path.segments.iter().any(|s| s.ident == "rquickjs");
+            path.segments.len() == 1 || path.segments.iter().any(|s| s.ident == "esabi");
         if !is_ours {
             continue;
         }
         return Err(Error::new(
             last.ident.span(),
             format!(
-                "`#[rquickjs::class]` already implements `{trait_name}` for this type; \
-                 remove `{trait_name}` from `#[derive(...)]`, or drop `#[rquickjs::class]` \
+                "`#[esabi::class]` already implements `{trait_name}` for this type; \
+                 remove `{trait_name}` from `#[derive(...)]`, or drop `#[esabi::class]` \
                  if you want plain-data conversion"
             ),
         ));
@@ -287,7 +287,7 @@ mod test {
     #[test]
     fn rejects_path_qualified_class() {
         let attrs = attrs_of(quote! {
-            #[rquickjs::class]
+            #[esabi::class]
             struct Foo { x: u32 }
         });
         let err = ensure_not_on_class(&attrs, "FromJs").unwrap_err();
@@ -301,9 +301,9 @@ mod test {
 
     #[test]
     fn rejects_class_with_arguments() {
-        // `#[rquickjs::class(rename = "Foo")]` is still the same attribute.
+        // `#[esabi::class(rename = "Foo")]` is still the same attribute.
         let attrs = attrs_of(quote! {
-            #[rquickjs::class(rename = "Foo")]
+            #[esabi::class(rename = "Foo")]
             struct Foo { x: u32 }
         });
         let err = ensure_not_on_class(&attrs, "IntoJs").unwrap_err();
@@ -313,7 +313,7 @@ mod test {
     #[test]
     fn rejects_bare_class_attribute() {
         // Bare `#[class]` comes up when the user does
-        // `use rquickjs::class` and then writes `#[class]`. A one-segment
+        // `use esabi::class` and then writes `#[class]`. A one-segment
         // path is treated as ours.
         let attrs = attrs_of(quote! {
             #[class]
@@ -326,7 +326,7 @@ mod test {
     #[test]
     fn ignores_unrelated_class_attribute() {
         // An attribute whose path ends in `class` but isn't ours
-        // (no `rquickjs` segment, more than one segment) should be
+        // (no `esabi` segment, more than one segment) should be
         // ignored so we don't produce false positives on downstream
         // attribute macros that happen to be named `class`.
         let attrs = attrs_of(quote! {
@@ -339,7 +339,7 @@ mod test {
     #[test]
     fn trait_name_is_reflected_in_message() {
         let attrs = attrs_of(quote! {
-            #[rquickjs::class]
+            #[esabi::class]
             struct Foo { x: u32 }
         });
         let err_from = ensure_not_on_class(&attrs, "FromJs").unwrap_err();

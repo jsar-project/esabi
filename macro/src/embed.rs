@@ -3,7 +3,7 @@ use std::{env, path::Path};
 use crate::common::crate_ident;
 use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote};
-use rquickjs_core::{Context, Module, Result as JsResult, Runtime, WriteOptions};
+use esabi_core::{Context, Module, Result as JsResult, Runtime, WriteOptions};
 use syn::{
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
@@ -178,7 +178,7 @@ mod test {
         let test_data = to_entries(data.into_iter());
         let tokens = expand(&test_data);
         let expected = quote! {
-            rquickjs::loader::bundle::Bundle(&rquickjs::phf::Map{
+            esabi::loader::bundle::Bundle(&esabi::phf::Map{
                 key: 16287231350648472473u64,
                 disps: &[(0u32,0u32)],
                 entries: &[
@@ -196,7 +196,7 @@ mod test {
         let test_data = to_entries(data.into_iter());
         let tokens = expand(&test_data);
         let expected = quote! {
-            rquickjs::loader::bundle::Bundle(&[
+            esabi::loader::bundle::Bundle(&[
                 ("test_module", &[1u8, 2u8, 3u8,4u8])
             ])
         };

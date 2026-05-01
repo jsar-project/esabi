@@ -253,7 +253,7 @@ pub(crate) fn expand(options: OptionList<ImplOption>, item: ItemImpl) -> Result<
         quote! {
             impl #js_added_generics #crate_name::class::impl_::ConstructorCreator<'js,#self_ty> for #crate_name::class::impl_::ConstructorCreate<#self_ty> {
                 fn create_constructor(&self, ctx: &#crate_name::Ctx<'js>) -> #crate_name::Result<Option<#crate_name::function::Constructor<'js>>>{
-                    let constr = #crate_name::function::Constructor::new_class::<#self_ty,_,_>(ctx.clone(),#name)?;
+                    let constr = #crate_name::function::new_class_from_js_func::<#self_ty,_,_>(ctx.clone(), #name)?;
                     #(#static_function_apply)*
                     #(#static_accessor_apply)*
                     Ok(Some(constr))

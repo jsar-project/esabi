@@ -1,20 +1,20 @@
 [package]
-name = "rquickjs-macro"
+name = "esabi-macro"
 version = "0.11.0"
 authors = ["K. <kayo@illumium.org>", "Mees Delzenne <mees.delzenne@gmail.com>"]
 edition = "2021"
 license = "MIT"
 readme = "README.md"
-description = "Procedural macros for rquickjs"
+description = "Procedural macros for esabi"
 keywords = ["quickjs", "ecmascript", "javascript", "es6", "es2020"]
 categories = ["api-bindings"]
-repository = "https://github.com/DelSkayn/rquickjs.git"
+repository = "https://github.com/DelSkayn/esabi.git"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-rquickjs-core = { workspace = true, features = ["loader"] }
+esabi-core = { workspace = true, features = ["loader", "engine-quickjs"] }
 proc-macro2 = "1"
 proc-macro-crate = "3"
 quote = "1"
@@ -27,10 +27,10 @@ phf_shared = { version = "0.13", optional = true }
 phf_generator = { version = "0.13", optional = true }
 
 [dev-dependencies]
-rquickjs = { path = "../", features = ["macro", "futures", "phf"] }
+esabi = { path = "../", features = ["macro", "futures", "phf"] }
 difference = "2"
 
 
 [features]
 phf = ["phf_shared", "phf_generator"]
-bindgen = ["rquickjs-core/bindgen"]
+bindgen = ["esabi-core/bindgen"]

@@ -1,14 +1,14 @@
-use rquickjs::{class::Trace, CatchResultExt, Class, Context, JsLifetime, Object, Runtime};
+use esabi::{class::Trace, CatchResultExt, Class, Context, JsLifetime, Object, Runtime};
 
 #[derive(Trace, JsLifetime)]
-#[rquickjs::class]
+#[esabi::class]
 pub struct Outer<'js> {
     #[qjs(get, set)]
     inner: Class<'js, Inner>,
 }
 
 #[derive(Trace, JsLifetime, Default, Clone)]
-#[rquickjs::class]
+#[esabi::class]
 pub struct Inner {
     #[qjs(get, set)]
     value: String,

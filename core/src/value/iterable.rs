@@ -79,7 +79,7 @@ where
 ///
 /// # From a closure
 /// ```
-/// # use rquickjs::{Runtime, Context, Result, Iterable};
+/// # use esabi::{Runtime, Context, Result, Iterable};
 /// # let rt = Runtime::new().unwrap();
 /// # let ctx = Context::full(&rt).unwrap();
 /// # ctx.with(|ctx| -> Result<()> {
@@ -97,7 +97,7 @@ where
 ///
 /// # From an iterator
 /// ```
-/// # use rquickjs::{Runtime, Context, Result, Iterable};
+/// # use esabi::{Runtime, Context, Result, Iterable};
 /// # let rt = Runtime::new().unwrap();
 /// # let ctx = Context::full(&rt).unwrap();
 /// # ctx.with(|ctx| -> Result<()> {
@@ -172,7 +172,7 @@ where
 ///
 /// # Example
 /// ```
-/// # use rquickjs::{Runtime, Context, Result, JsIterator};
+/// # use esabi::{Runtime, Context, Result, JsIterator};
 /// # let rt = Runtime::new().unwrap();
 /// # let ctx = Context::full(&rt).unwrap();
 /// # ctx.with(|ctx| -> Result<()> {

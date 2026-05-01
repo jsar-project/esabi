@@ -1,4 +1,4 @@
-use rquickjs::{CatchResultExt, Class, Coerced, Context, Runtime};
+use esabi::{CatchResultExt, Class, Coerced, Context, Runtime};
 
 use self::class::MyClass;
 

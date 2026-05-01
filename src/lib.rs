@@ -2,9 +2,13 @@
 
 //! # High-level bindings to QuickJS
 //!
-//! The `rquickjs` crate provides safe high-level bindings to the
-//! [QuickJS](https://bellard.org/quickjs/) JavaScript engine. This crate is heavily inspired by
-//! the [rlua](https://crates.io/crates/rlua) crate.
+//! The `esabi` crate provides safe high-level bindings to the
+//! [QuickJS](https://bellard.org/quickjs/) JavaScript engine and keeps QuickJS as the default
+//! backend. This crate is heavily inspired by the [rlua](https://crates.io/crates/rlua) crate.
+//!
+//! For `wasm32-unknown-unknown`, you can switch to the `engine-boa` backend. The Boa path is
+//! intentionally smaller than the default QuickJS backend and currently focuses on `Runtime`,
+//! `Context`, basic value conversion, object access and `eval`.
 //!
 //! # The `Runtime` and `Context` objects
 //!
@@ -29,11 +33,19 @@
 //! For values which represent the name of variables or indices, the trait [`IntoAtom`] is
 //! available to convert values to the representation QuickJS requires.
 //!
+//! On the Boa backend, a compatibility-focused subset of the module APIs is also available,
+//! including `ModuleDef`-based synthetic modules for browser and wasm playground scenarios.
+//!
 //! # Optional features
 //!
 //! ## Advanced
 //!
 //! The following features may be enabled to get an extra functionality:
+//!
+//! - `engine-quickjs` selects the default QuickJS backend.
+//!
+//! - `engine-boa` selects the Boa backend. This is the recommended backend for
+//!   `wasm32-unknown-unknown`.
 //!
 //! - `rust-alloc` forces using Rust's global allocator by default instead of libc's one.
 //!
@@ -122,21 +134,22 @@
 #![cfg_attr(feature = "doc-cfg", feature(doc_cfg))]
 #![cfg_attr(not(test), no_std)]
 
-pub use rquickjs_core::*;
+pub use esabi_core::*;
 
 #[cfg_attr(feature = "doc-cfg", doc(cfg(feature = "macro")))]
 #[cfg(feature = "macro")]
-pub use rquickjs_macro::{
+pub use esabi_macro::{
     class, embed, exotic, function, methods, module, FromJs, IntoJs, JsLifetime,
 };
 
+#[cfg(any(feature = "engine-quickjs", feature = "engine-boa"))]
 pub mod class {
     //! JavaScript classes defined from Rust.
 
-    pub use rquickjs_core::class::*;
+    pub use esabi_core::class::*;
     #[cfg_attr(feature = "doc-cfg", doc(cfg(feature = "macro")))]
     #[cfg(feature = "macro")]
-    pub use rquickjs_macro::Trace;
+    pub use esabi_macro::Trace;
 }
 
 // The following imports needed to linking docs

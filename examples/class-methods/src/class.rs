@@ -1,15 +1,15 @@
-use rquickjs::atom::PredefinedAtom;
-use rquickjs::class::Trace;
-use rquickjs::{Ctx, JsLifetime, Null, Object, Result, Value};
+use esabi::atom::PredefinedAtom;
+use esabi::class::Trace;
+use esabi::{Ctx, JsLifetime, Null, Object, Result, Value};
 
 #[derive(Clone, Trace, JsLifetime)]
-#[rquickjs::class]
+#[esabi::class]
 pub struct MyClass {
     #[qjs(skip_trace)]
     data: String,
 }
 
-#[rquickjs::methods(rename_all = "camelCase")]
+#[esabi::methods(rename_all = "camelCase")]
 impl MyClass {
     #[qjs(constructor)]
     pub fn new(data: String) -> Self {
@@ -37,7 +37,7 @@ impl MyClass {
     #[qjs(rename = PredefinedAtom::SymbolToPrimitive)]
     fn to_primitive<'js>(&self, ctx: Ctx<'js>, hint: String) -> Result<Value<'js>> {
         if hint == "string" {
-            return Ok(rquickjs::String::from_str(ctx, &self.data)?.into_value());
+            return Ok(esabi::String::from_str(ctx, &self.data)?.into_value());
         }
         Ok(Null.into_value(ctx))
     }

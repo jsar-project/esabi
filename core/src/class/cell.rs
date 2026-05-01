@@ -10,7 +10,7 @@ use core::{
 /// A trait to allow classes to choose there borrowing implementation.
 ///
 /// # Safety
-/// This trait is not meant to be implemented outside the rquickjs library.
+/// This trait is not meant to be implemented outside the esabi library.
 pub unsafe trait Mutability {
     #[doc(hidden)]
     /// The internal type of cell used for this mutability.

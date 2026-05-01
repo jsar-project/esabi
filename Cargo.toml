@@ -1,5 +1,5 @@
 [package]
-name = "rquickjs"
+name = "esabi"
 version = "0.11.0"
 authors = ["Mees Delzenne <mees.delzenne@gmail.com>", "K. <kayo@illumium.org>"]
 edition = "2021"
@@ -9,7 +9,7 @@ readme = "README.md"
 description = "High level bindings to the QuickJS JavaScript engine"
 keywords = ["quickjs", "ecmascript", "javascript", "es6", "es2020"]
 categories = ["api-bindings"]
-repository = "https://github.com/DelSkayn/rquickjs.git"
+repository = "https://github.com/DelSkayn/esabi.git"
 
 
 [workspace]
@@ -17,32 +17,35 @@ members = [
   "sys",
   "core",
   "macro",
+  "fixtures/boa-parity",
+  "web/runner",
   "examples/native-module",
   "examples/module-loader",
   "examples/import-attributes",
-  "examples/rquickjs-cli",
+  "examples/esabi-cli",
   "examples/class-methods",
   "examples/exotic",
 ]
 
 [workspace.dependencies]
-rquickjs-core = { version = "0.11.0", path = "core", default-features = false }
-rquickjs-macro = { version = "0.11.0", path = "macro", default-features = false }
-rquickjs-sys = { version = "0.11.0", path = "sys", default-features = false }
-rquickjs = { version = "0.11.0", path = "./", default-features = false }
+esabi-core = { version = "0.11.0", path = "core", default-features = false }
+esabi-macro = { version = "0.11.0", path = "macro", default-features = false }
+esabi-sys = { version = "0.11.0", path = "sys", default-features = false }
+esabi = { version = "0.11.0", path = "./", default-features = false }
 
 [dependencies]
 indexmap-rs = { package = "indexmap", version = "2", optional = true }
 either-rs = { package = "either", version = "1", optional = true }
-rquickjs-core = { workspace = true }
-rquickjs-macro = { workspace = true, optional = true }
+esabi-core = { workspace = true }
+esabi-macro = { workspace = true, optional = true }
 
 
 [features]
-default = ["std"]
+default = ["std", "engine-quickjs"]
 
 # Almost all features excluding "parallel" and support for async runtimes
 full = [
+  "engine-quickjs",
   "std",
   "chrono",
   "loader",
@@ -54,7 +57,16 @@ full = [
 ]
 
 # A version of full designed for wasm32-wasip1 and wasm32-wasip2 (simply excludes dyn-load)
-full-wasi = ["std", "chrono", "loader", "either", "indexmap", "macro", "phf"]
+full-wasi = [
+  "engine-quickjs",
+  "std",
+  "chrono",
+  "loader",
+  "either",
+  "indexmap",
+  "macro",
+  "phf",
+]
 
 # Almost all features excluding "parallel"
 full-async = ["full", "futures"]
@@ -63,83 +75,88 @@ full-async = ["full", "futures"]
 full-async-wasi = ["full-wasi", "futures"]
 
 # Enable use of the rust standard library
-std = ["rquickjs-core/std"]
+std = ["esabi-core/std"]
+
+# Select the JavaScript engine backend.
+engine-quickjs = ["esabi-core/engine-quickjs"]
+engine-boa = ["esabi-core/engine-boa"]
 
 # Chrono support.
-chrono = ["rquickjs-core/chrono"]
+chrono = ["esabi-core/chrono"]
 
 # Enable support for Either type
-either = ["rquickjs-core/either", "either-rs"]
+either = ["esabi-core/either", "either-rs"]
 
 # Enable support for IndexMap and IndexSet types type
-indexmap = ["rquickjs-core/indexmap", "indexmap-rs"]
+indexmap = ["esabi-core/indexmap", "indexmap-rs"]
 
 # Enable support for perfect hash maps
-phf = ["rquickjs-core/phf", "rquickjs-macro/phf"]
+phf = ["esabi-core/phf", "esabi-macro/phf"]
 
 # Use bindgen to generate bindings at compile-time
 # otherwise bundled bindings will be used
-bindgen = ["rquickjs-core/bindgen", "rquickjs-macro?/bindgen"]
+bindgen = ["engine-quickjs", "esabi-core/bindgen", "esabi-macro?/bindgen"]
 
 # Enable support of parallel execution
-parallel = ["rquickjs-core/parallel"]
+parallel = ["esabi-core/parallel"]
 
 # Enable user-defined module loader support
-loader = ["rquickjs-core/loader"]
+loader = ["esabi-core/loader"]
 
 # Enable native module loading support
-dyn-load = ["rquickjs-core/dyn-load"]
+dyn-load = ["esabi-core/dyn-load"]
 
 # Use Rust global allocator by default
 # otherwise libc allocator will be used
-rust-alloc = ["rquickjs-core/rust-alloc"]
+rust-alloc = ["esabi-core/rust-alloc"]
 
 
 # Enable helper macros
-macro = ["rquickjs-macro"]
+macro = ["esabi-macro"]
 
 # Allows transferring objects between different contexts of the same runtime.
 # Disabled for now as it can be used to create unsound code.
-# multi-ctx = ["rquickjs-core/multi-ctx"]
+# multi-ctx = ["esabi-core/multi-ctx"]
 
 # Enable hallf (f16) support
-half = ["rquickjs-core/half"]
+half = ["esabi-core/half"]
 
 # Enable interop between Rust futures and JS Promises
-futures = ["rquickjs-core/futures"]
+futures = ["esabi-core/futures"]
 
 # Enable QuickJS dumps for debug
-dump-bytecode = ["rquickjs-core/dump-bytecode"]
-dump-gc = ["rquickjs-core/dump-gc"]
-dump-gc-free = ["rquickjs-core/dump-gc-free"]
-dump-free = ["rquickjs-core/dump-free"]
+dump-bytecode = ["engine-quickjs", "esabi-core/dump-bytecode"]
+dump-gc = ["engine-quickjs", "esabi-core/dump-gc"]
+dump-gc-free = ["engine-quickjs", "esabi-core/dump-gc-free"]
+dump-free = ["engine-quickjs", "esabi-core/dump-free"]
 # Dump JS values which still alive when runtime is freed
-dump-leaks = ["rquickjs-core/dump-leaks"]
-dump-mem = ["rquickjs-core/dump-mem"]
-dump-objects = ["rquickjs-core/dump-objects"]
-dump-atoms = ["rquickjs-core/dump-atoms"]
-dump-shapes = ["rquickjs-core/dump-shapes"]
-dump-module-resolve = ["rquickjs-core/dump-module-resolve"]
-dump-promise = ["rquickjs-core/dump-promise"]
-dump-read-object = ["rquickjs-core/dump-read-object"]
+dump-leaks = ["engine-quickjs", "esabi-core/dump-leaks"]
+dump-mem = ["engine-quickjs", "esabi-core/dump-mem"]
+dump-objects = ["engine-quickjs", "esabi-core/dump-objects"]
+dump-atoms = ["engine-quickjs", "esabi-core/dump-atoms"]
+dump-shapes = ["engine-quickjs", "esabi-core/dump-shapes"]
+dump-module-resolve = ["engine-quickjs", "esabi-core/dump-module-resolve"]
+dump-promise = ["engine-quickjs", "esabi-core/dump-promise"]
+dump-read-object = ["engine-quickjs", "esabi-core/dump-read-object"]
 
 # Disable QuickJS assertions for faster performance
-disable-assertions = ["rquickjs-core/disable-assertions"]
+disable-assertions = ["engine-quickjs", "esabi-core/disable-assertions"]
 
 # Enable compilation tests
-compile-tests = ["rquickjs-core/compile-tests"]
+compile-tests = ["esabi-core/compile-tests"]
 
 # Enable unstable doc-cfg feature (for docs.rs)
-doc-cfg = ["rquickjs-core/doc-cfg"]
+doc-cfg = ["esabi-core/doc-cfg"]
 
 # Deprecated features
-classes = ["rquickjs-core/classes"]
-array-buffer = ["rquickjs-core/array-buffer"]
-allocator = ["rquickjs-core/allocator"]
-properties = ["rquickjs-core/properties"]
+classes = ["esabi-core/classes"]
+array-buffer = ["esabi-core/array-buffer"]
+allocator = ["esabi-core/allocator"]
+properties = ["esabi-core/properties"]
 
 
 [dev-dependencies]
+boa-parity-fixtures = { path = "fixtures/boa-parity" }
 trybuild = "1"
 
 [package.metadata.docs.rs]

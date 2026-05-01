@@ -1,28 +1,28 @@
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "engine-quickjs"))]
 #[path = "macros/pass_class.rs"]
 pub mod pass_class;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "engine-quickjs"))]
 #[path = "macros/pass_convert.rs"]
 pub mod pass_convert;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "engine-quickjs"))]
 #[path = "macros/pass_method.rs"]
 pub mod pass_method;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "engine-quickjs"))]
 #[path = "macros/pass_module.rs"]
 pub mod pass_module;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "engine-quickjs"))]
 #[path = "macros/pass_nested_class.rs"]
 pub mod pass_nested_class;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "engine-quickjs"))]
 #[path = "macros/pass_trace.rs"]
 pub mod pass_trace;
 
-#[cfg(feature = "macro")]
+#[cfg(all(feature = "macro", feature = "engine-quickjs"))]
 mod macro_tests {
     #[cfg(target_arch = "wasm32")]
     use crate::{

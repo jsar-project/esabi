@@ -442,10 +442,21 @@ impl Class {
                         use #crate_name::class::impl_::MethodImplementor;
 
                         let proto = #crate_name::Object::new(ctx.clone())?;
+                        Self::init_prototype(ctx, &proto)?;
+                        Ok(Some(proto))
+                    }
+
+                    fn init_prototype(
+                        _ctx: &#crate_name::Ctx<'js>,
+                        _proto: &#crate_name::Object<'js>,
+                    ) -> #crate_name::Result<()> {
+                        use #crate_name::class::impl_::MethodImplementor;
+
+                        let proto = _proto;
                         #props
                         let implementor = #crate_name::class::impl_::MethodImpl::<Self>::new();
-                        (&implementor).implement(&proto)?;
-                        Ok(Some(proto))
+                        (&implementor).implement(proto)?;
+                        Ok(())
                     }
 
                     fn constructor(ctx: &#crate_name::Ctx<'js>) -> #crate_name::Result<Option<#crate_name::function::Constructor<'js>>>{
@@ -518,8 +529,8 @@ fn ensure_no_conflicting_derives(attrs: &[syn::Attribute]) -> Result<()> {
             return Err(Error::new(
                 span,
                 format!(
-                    "`#[rquickjs::class]` already implements `{name}` for this type; \
-                     remove `{name}` from `#[derive(...)]`, or drop `#[rquickjs::class]` \
+                    "`#[esabi::class]` already implements `{name}` for this type; \
+                     remove `{name}` from `#[derive(...)]`, or drop `#[esabi::class]` \
                      if you want plain-data conversion"
                 ),
             ));
@@ -594,9 +605,9 @@ mod test {
 
     #[test]
     fn rejects_path_qualified_derive() {
-        // Users sometimes write `#[derive(rquickjs::FromJs)]`.
+        // Users sometimes write `#[derive(esabi::FromJs)]`.
         let attrs = attrs_of(quote! {
-            #[derive(rquickjs::FromJs)]
+            #[derive(esabi::FromJs)]
             struct Foo { x: u32 }
         });
         let err = ensure_no_conflicting_derives(&attrs).unwrap_err();

@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use rquickjs::{
+use esabi::{
     class::{JsClass, Readable, Trace, Tracer},
     Class, Context, JsLifetime, Null, Runtime,
 };
@@ -45,13 +45,13 @@ impl<'js> JsClass<'js> for TraceStruct {
 
     type Mutable = Readable;
 
-    fn prototype(_ctx: &rquickjs::Ctx<'js>) -> rquickjs::Result<Option<rquickjs::Object<'js>>> {
+    fn prototype(_ctx: &esabi::Ctx<'js>) -> esabi::Result<Option<esabi::Object<'js>>> {
         Ok(None)
     }
 
     fn constructor(
-        _ctx: &rquickjs::Ctx<'js>,
-    ) -> rquickjs::Result<Option<rquickjs::function::Constructor<'js>>> {
+        _ctx: &esabi::Ctx<'js>,
+    ) -> esabi::Result<Option<esabi::function::Constructor<'js>>> {
         Ok(None)
     }
 }
@@ -66,11 +66,11 @@ pub enum TraceEnum {
 #[derive(Trace, JsLifetime)]
 #[allow(dead_code)]
 pub struct TraceBuiltins<'js> {
-    constructor: rquickjs::Constructor<'js>,
-    promise: rquickjs::Promise<'js>,
-    proxy: rquickjs::Proxy<'js>,
-    array_buffer: rquickjs::ArrayBuffer<'js>,
-    typed_array: rquickjs::TypedArray<'js, u8>,
+    constructor: esabi::Constructor<'js>,
+    promise: esabi::Promise<'js>,
+    proxy: esabi::Proxy<'js>,
+    array_buffer: esabi::ArrayBuffer<'js>,
+    typed_array: esabi::TypedArray<'js, u8>,
 }
 
 impl<'js> JsClass<'js> for TraceEnum {
@@ -78,13 +78,13 @@ impl<'js> JsClass<'js> for TraceEnum {
 
     type Mutable = Readable;
 
-    fn prototype(_ctx: &rquickjs::Ctx<'js>) -> rquickjs::Result<Option<rquickjs::Object<'js>>> {
+    fn prototype(_ctx: &esabi::Ctx<'js>) -> esabi::Result<Option<esabi::Object<'js>>> {
         Ok(None)
     }
 
     fn constructor(
-        _ctx: &rquickjs::Ctx<'js>,
-    ) -> rquickjs::Result<Option<rquickjs::function::Constructor<'js>>> {
+        _ctx: &esabi::Ctx<'js>,
+    ) -> esabi::Result<Option<esabi::function::Constructor<'js>>> {
         Ok(None)
     }
 }

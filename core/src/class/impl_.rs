@@ -74,7 +74,7 @@ impl<'a, T: Clone> CloneTrait<T> for CloneWrapper<'a, T> {
     }
 }
 
-/// Compile-time check used by the `#[rquickjs::class]` macro to reject
+/// Compile-time check used by the `#[esabi::class]` macro to reject
 /// fields with `#[qjs(get)]`/`#[qjs(set)]` that are themselves a [`JsClass`]
 /// type.
 ///

@@ -1,4 +1,4 @@
-#[rquickjs::bind(module, public)]
+#[esabi::bind(module, public)]
 #[quickjs(bare)]
 #[allow(non_upper_case_globals)]
 pub mod native_module {

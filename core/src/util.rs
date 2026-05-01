@@ -2,7 +2,7 @@
 
 use core::panic::UnwindSafe;
 
-/// A trait for preventing implementing traits which should not be implemented outside of rquickjs.
+/// A trait for preventing implementing traits which should not be implemented outside of esabi.
 pub trait Sealed {}
 
 #[cfg(feature = "futures")]

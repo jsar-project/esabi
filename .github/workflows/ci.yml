@@ -47,8 +47,8 @@ jobs:
           name: docs
           path: |
             target/doc/rquickjs
-            target/doc/rquickjs-sys
-            target/doc/rquickjs-macro
+            target/doc/esabi-sys
+            target/doc/esabi-macro
   check:
     runs-on: ubuntu-latest
     permissions:
@@ -63,6 +63,24 @@ jobs:
           components: clippy
       - name: Cargo clippy
         run: cargo clippy --all --all-targets --features full-async,bindgen
+
+  engine-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+      - name: Boa smoke tests on native host
+        run: cargo test --test boa_smoke --test engine_feature_conflict --no-default-features --features std,engine-boa
+      - name: Boa smoke tests on wasm32-unknown-unknown
+        run: cargo test --target wasm32-unknown-unknown --test boa_smoke --no-default-features --features std,engine-boa --no-run
+      - name: Boa web runner on wasm32-unknown-unknown
+        run: cargo check -p boa-playground-runner --target wasm32-unknown-unknown
 
   msrv:
     # Check to see if rquickjs builds on minimal supported Rust version.

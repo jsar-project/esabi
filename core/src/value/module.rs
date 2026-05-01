@@ -79,7 +79,7 @@ impl WriteOptions {
 /// Helper macro to provide module init function.
 /// Use for exporting module definitions to be loaded as part of a dynamic library.
 /// ```
-/// use rquickjs::{module::ModuleDef, module_init};
+/// use esabi::{module::ModuleDef, module_init};
 ///
 /// struct MyModule;
 /// impl ModuleDef for MyModule {}
@@ -450,7 +450,7 @@ impl<'js, Evaluated> Module<'js, Evaluated> {
     /// # Examples
     ///
     /// ```
-    /// use rquickjs::{Context, Module, Result, Runtime, WriteOptions, WriteOptionsEndianness};
+    /// use esabi::{Context, Module, Result, Runtime, WriteOptions, WriteOptionsEndianness};
     /// fn main() -> Result<()> {
     ///     let rt = Runtime::new()?;
     ///     let ctx = Context::full(&rt)?;

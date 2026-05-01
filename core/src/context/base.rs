@@ -68,7 +68,7 @@ impl Context {
         let guard = runtime.inner.lock();
         let ctx = NonNull::new(unsafe { qjs::JS_NewContextRaw(guard.rt.as_ptr()) })
             .ok_or(Error::Allocation)?;
-        // rquickjs assumes the base objects exist, so we allways need to add this.
+        // esabi assumes the base objects exist, so we allways need to add this.
         unsafe { qjs::JS_AddIntrinsicBaseObjects(ctx.as_ptr()) };
         unsafe { I::add_intrinsic(ctx) };
         let res = unsafe { ContextOwner::new(ctx, runtime.clone()) };

@@ -35,7 +35,7 @@ where
     }
 }
 
-/// The class used for wrapping closures, rquickjs implements callbacks by creating an instances of
+/// The class used for wrapping closures, esabi implements callbacks by creating an instances of
 /// this class.
 pub struct RustFunction<'js>(pub Box<dyn RustFunc<'js> + 'js>);
 

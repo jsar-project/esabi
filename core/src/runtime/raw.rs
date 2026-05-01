@@ -2,7 +2,7 @@
 use alloc::{boxed::Box, ffi::CString};
 use core::{mem, panic::AssertUnwindSafe, ptr::NonNull, result::Result as StdResult};
 
-use rquickjs_sys::JSPromiseHookType;
+use esabi_sys::JSPromiseHookType;
 
 use crate::allocator::{Allocator, AllocatorHolder};
 #[cfg(feature = "loader")]
@@ -293,10 +293,10 @@ impl RawRuntime {
     #[allow(clippy::unnecessary_cast)]
     pub unsafe fn set_promise_hook(&mut self, hook: Option<PromiseHook>) {
         unsafe extern "C" fn promise_hook_wrapper(
-            ctx: *mut rquickjs_sys::JSContext,
+            ctx: *mut esabi_sys::JSContext,
             type_: JSPromiseHookType,
-            promise: rquickjs_sys::JSValue,
-            parent: rquickjs_sys::JSValue,
+            promise: esabi_sys::JSValue,
+            parent: esabi_sys::JSValue,
             opaque: *mut ::core::ffi::c_void,
         ) {
             let opaque = NonNull::new_unchecked(opaque).cast::<Opaque>();
@@ -337,10 +337,10 @@ impl RawRuntime {
             hook.as_ref().map(|_| {
                 promise_hook_wrapper
                     as unsafe extern "C" fn(
-                        *mut rquickjs_sys::JSContext,
+                        *mut esabi_sys::JSContext,
                         JSPromiseHookType,
-                        rquickjs_sys::JSValue,
-                        rquickjs_sys::JSValue,
+                        esabi_sys::JSValue,
+                        esabi_sys::JSValue,
                         *mut core::ffi::c_void,
                     )
             }),
@@ -351,9 +351,9 @@ impl RawRuntime {
 
     pub unsafe fn set_host_promise_rejection_tracker(&mut self, tracker: Option<RejectionTracker>) {
         unsafe extern "C" fn rejection_tracker_wrapper(
-            ctx: *mut rquickjs_sys::JSContext,
-            promise: rquickjs_sys::JSValue,
-            reason: rquickjs_sys::JSValue,
+            ctx: *mut esabi_sys::JSContext,
+            promise: esabi_sys::JSValue,
+            reason: esabi_sys::JSValue,
             is_handled: bool,
             opaque: *mut ::core::ffi::c_void,
         ) {
@@ -422,7 +422,7 @@ impl RawRuntime {
         self.get_opaque().set_interrupt_handler(handler);
     }
 
-    fn add_dump_flags(rt: *mut rquickjs_sys::JSRuntime) {
+    fn add_dump_flags(rt: *mut esabi_sys::JSRuntime) {
         unsafe {
             qjs::JS_SetDumpFlags(rt, build_dump_flags());
         }

@@ -1,4 +1,4 @@
-use rquickjs::{
+use esabi::{
     loader::{ImportAttributes, Loader, Resolver},
     module::Declared,
     Context, Ctx, Error, Function, Module, Result, Runtime,

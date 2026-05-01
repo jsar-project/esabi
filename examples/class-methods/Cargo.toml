@@ -5,11 +5,11 @@ authors = ["Emile Fugulin <code@efugulin.com>"]
 edition = "2018"
 publish = false
 
-[dependencies.rquickjs]
+[dependencies.esabi]
 path = "../.."
 default-features = false
 features = []
 
 [features]
 default = ["macro"]
-macro = ["rquickjs/macro"]
+macro = ["esabi/macro"]

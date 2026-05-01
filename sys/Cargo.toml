@@ -1,14 +1,14 @@
 [package]
-name = "rquickjs-sys"
+name = "esabi-sys"
 version = "0.11.0"
 authors = ["Mees Delzenne <mees.delzenne@gmail.com>"]
 edition = "2021"
 license = "MIT"
 readme = "README.md"
-description = "QuickJS bindings for rquickjs"
+description = "QuickJS bindings for esabi"
 keywords = ["quickjs", "ecmascript", "javascript", "es6", "es2020"]
 categories = ["external-ffi-bindings"]
-repository = "https://github.com/DelSkayn/rquickjs.git"
+repository = "https://github.com/DelSkayn/esabi.git"
 
 [build-dependencies]
 cc = "1"

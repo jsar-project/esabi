@@ -1,4 +1,4 @@
-use rquickjs::{Context, Runtime};
+use esabi::{Context, Runtime};
 
 fn main() {
     let rt = Runtime::new().unwrap();

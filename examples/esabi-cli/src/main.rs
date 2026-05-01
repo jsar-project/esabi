@@ -1,7 +1,7 @@
 use std::io::Write;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use rquickjs::{CatchResultExt, Context, Function, Object, Result, Runtime, Value};
+use esabi::{CatchResultExt, Context, Function, Object, Result, Runtime, Value};
 
 fn print(s: String) {
     println!("{s}");
