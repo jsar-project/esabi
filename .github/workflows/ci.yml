@@ -103,14 +103,27 @@ jobs:
         run: cargo generate-lockfile
       - name: cargo llvm-cov
         run: cargo llvm-cov --locked --no-default-features --features full-async,compile-tests,bindgen --workspace --lcov --output-path lcov.info
-      - name: Record Rust version
-        run: echo "RUST=$(rustc --version)" >> "$GITHUB_ENV"
-      - name: Upload to codecov.io
-        uses: codecov/codecov-action@v6
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          env_vars: OS,RUST
+      - name: Print coverage summary
+        run: |
+          echo "Rust: $(rustc --version)"
+          awk '
+            /^LF:/ { lf += substr($0, 4) }
+            /^LH:/ { lh += substr($0, 4) }
+            /^FNF:/ { fnf += substr($0, 5) }
+            /^FNH:/ { fnh += substr($0, 5) }
+            END {
+              if (lf > 0) {
+                printf "Line coverage: %.2f%% (%d/%d)\n", (lh / lf) * 100, lh, lf;
+              } else {
+                print "Line coverage: n/a";
+              }
+              if (fnf > 0) {
+                printf "Function coverage: %.2f%% (%d/%d)\n", (fnh / fnf) * 100, fnh, fnf;
+              } else {
+                print "Function coverage: n/a";
+              }
+            }
+          ' lcov.info
 
   sanitizer:
     runs-on: ubuntu-latest
