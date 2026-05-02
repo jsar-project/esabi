@@ -243,8 +243,10 @@ impl ModuleDef for RustFunctionsModule {
     fn evaluate<'js>(ctx: &Ctx<'js>, exports: &Exports<'js>) -> JsResult<()> {
         exports.export(
             "greet",
-            Function::new(ctx.clone(), |name: String| format!("Hello from Rust, {name}!"))?
-                .with_name("greet")?,
+            Function::new(ctx.clone(), |name: String| {
+                format!("Hello from Rust, {name}!")
+            })?
+            .with_name("greet")?,
         )?;
         exports.export(
             "double",
@@ -269,7 +271,8 @@ impl ModuleDef for RustMixedModule {
         exports.export("meaning", 21)?;
         exports.export(
             "multiply",
-            Function::new(ctx.clone(), |left: i32, right: i32| left * right)?.with_name("multiply")?,
+            Function::new(ctx.clone(), |left: i32, right: i32| left * right)?
+                .with_name("multiply")?,
         )?;
         Ok(())
     }
@@ -289,8 +292,10 @@ impl ModuleDef for RustObjectModule {
         api.set("runtime", "wasm playground")?;
         api.set(
             "greet",
-            Function::new(ctx.clone(), |name: String| format!("Rust object says hi to {name}"))?
-                .with_name("greet")?,
+            Function::new(ctx.clone(), |name: String| {
+                format!("Rust object says hi to {name}")
+            })?
+            .with_name("greet")?,
         )?;
         api.set(
             "triple",
@@ -420,22 +425,23 @@ impl Playground {
                     Ok(value) => self.success_result(mode, Some(value.0)),
                     Err(error) => self.execution_error(&ctx, error, mode),
                 },
-                SampleMode::Module => match Module::evaluate(ctx.clone(), "playground-entry", source)
-                {
-                    Ok(promise) => match promise.finish::<()>() {
-                        Ok(()) => {
-                            let result = globals
-                                .get::<_, Option<Coerced<String>>>("__playgroundResult")
-                                .ok()
-                                .flatten()
-                                .map(|value| value.0)
-                                .or_else(|| Some(String::from("module evaluated")));
-                            self.success_result(mode, result)
-                        }
+                SampleMode::Module => {
+                    match Module::evaluate(ctx.clone(), "playground-entry", source) {
+                        Ok(promise) => match promise.finish::<()>() {
+                            Ok(()) => {
+                                let result = globals
+                                    .get::<_, Option<Coerced<String>>>("__playgroundResult")
+                                    .ok()
+                                    .flatten()
+                                    .map(|value| value.0)
+                                    .or_else(|| Some(String::from("module evaluated")));
+                                self.success_result(mode, result)
+                            }
+                            Err(error) => self.execution_error(&ctx, error, mode),
+                        },
                         Err(error) => self.execution_error(&ctx, error, mode),
-                    },
-                    Err(error) => self.execution_error(&ctx, error, mode),
-                },
+                    }
+                }
             }
         });
 
@@ -453,7 +459,12 @@ impl Playground {
         }
     }
 
-    fn execution_error(&self, ctx: &Ctx<'_>, error: rquickjs::Error, mode: SampleMode) -> RunResult {
+    fn execution_error(
+        &self,
+        ctx: &Ctx<'_>,
+        error: rquickjs::Error,
+        mode: SampleMode,
+    ) -> RunResult {
         let exception = ctx.catch().into_object().and_then(Exception::from_object);
         let (name, message, stack) = if let Some(exception) = exception {
             let name = exception
