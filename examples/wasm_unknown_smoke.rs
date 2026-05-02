@@ -1,11 +1,14 @@
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 use rquickjs::{
     loader::{ImportAttributes, Loader, Resolver},
     module::Declared,
     Context, Ctx, Module, Result, Runtime,
 };
 
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 struct IdentityResolver;
 
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 impl Resolver for IdentityResolver {
     fn resolve<'js>(
         &mut self,
@@ -18,8 +21,10 @@ impl Resolver for IdentityResolver {
     }
 }
 
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 struct StaticLoader;
 
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 impl Loader for StaticLoader {
     fn load<'js>(
         &mut self,
@@ -34,33 +39,34 @@ impl Loader for StaticLoader {
     }
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+fn main() {}
+
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 fn main() {
-    #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
-    {
-        let rt = Runtime::new().unwrap();
-        let ctx = Context::full(&rt).unwrap();
+    let rt = Runtime::new().unwrap();
+    let ctx = Context::full(&rt).unwrap();
 
-        ctx.with(|ctx| {
-            let value: i32 = ctx.eval("40 + 2").unwrap();
-            assert_eq!(value, 42);
-        });
+    ctx.with(|ctx| {
+        let value: i32 = ctx.eval("40 + 2").unwrap();
+        assert_eq!(value, 42);
+    });
 
-        rt.set_loader(IdentityResolver, StaticLoader);
-        ctx.with(|ctx| {
-            Module::evaluate(
-                ctx.clone(),
-                "entry",
-                r#"
-                    import { value } from "dep";
-                    globalThis.answer = value + 1;
-                "#,
-            )
-            .unwrap()
-            .finish::<()>()
-            .unwrap();
+    rt.set_loader(IdentityResolver, StaticLoader);
+    ctx.with(|ctx| {
+        Module::evaluate(
+            ctx.clone(),
+            "entry",
+            r#"
+                import { value } from "dep";
+                globalThis.answer = value + 1;
+            "#,
+        )
+        .unwrap()
+        .finish::<()>()
+        .unwrap();
 
-            let answer: i32 = ctx.globals().get("answer").unwrap();
-            assert_eq!(answer, 42);
-        });
-    }
+        let answer: i32 = ctx.globals().get("answer").unwrap();
+        assert_eq!(answer, 42);
+    });
 }
