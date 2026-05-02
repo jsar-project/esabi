@@ -30,7 +30,7 @@ half = { version = "2.7.1", optional = true }
 
 [target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
 # Enable getrandom's JavaScript backend for Boa's rand dependency chain on wasm32-unknown-unknown.
-getrandom = { version = "0.3", features = ["wasm_js"] }
+getrandom = { version = "0.4", features = ["wasm_js"] }
 js-sys = "0.3"
 
 [dev-dependencies]
