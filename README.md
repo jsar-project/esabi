@@ -92,7 +92,36 @@ See below for a list of supported platforms.
 | aarch64-apple-darwin           |          ✅          |     ❌     |            ✅            |
 | wasm32-wasip1                  |          ✅          |     ✅     |            ✅            |
 | wasm32-wasip2                  |          ✅          |     ✅     |            ✅            |
+| wasm32-unknown-unknown         |          ✅          |     ✅*    |            ✅            |
 | other                          |          ❌          |     ❌     |         Unknown          |
+
+\* `wasm32-unknown-unknown` is validated with workspace builds and a dedicated smoke example compile. Runtime embedding still depends on the host providing the generated wasm imports.
+
+## WebAssembly notes
+
+For browser-style or freestanding wasm hosts, prefer the `full-wasm` or `full-async-wasm` feature sets:
+
+```bash
+cargo check --workspace --target wasm32-unknown-unknown --features full-wasm
+cargo build --example wasm_unknown_smoke --target wasm32-unknown-unknown --no-default-features --features full-wasm
+```
+
+On `wasm32-unknown-unknown`:
+
+| Category | Status | Notes / alternative |
+| --- | --- | --- |
+| `Runtime` / `Context` | Supported | Core embedding path works on freestanding/browser-style wasm hosts. |
+| Macros | Supported | Macro-powered APIs are part of the supported surface. |
+| In-memory module resolution and loading | Supported | Use builtin/in-memory resolvers and loaders. |
+| Bundled modules | Supported | Builtin module bundles work on this target. |
+| Direct module declarations / Rust `ModuleDef` | Supported | Prefer Rust-defined native modules or in-memory module sources. |
+| `FileResolver` | Not supported | There is no assumed filesystem on `wasm32-unknown-unknown`; prefer builtin or host-provided modules. |
+| `ScriptLoader` | Not supported | Loading modules from script files is intentionally excluded on freestanding wasm hosts. |
+| `NativeLoader` | Not supported | Native shared-library loading is not available on this target. |
+| `dyn-load` | Not supported | Dynamic library support is unavailable on `wasm32-unknown-unknown`. |
+| Host imports | Host-dependent | Runtime embedding still depends on the wasm host providing the generated imports. |
+| Validation scope | Limited | This target is validated with workspace builds and a dedicated smoke example compile. |
+| C toolchain/sysroot setup | Toolchain-dependent | `rquickjs-sys` reuses a WASI sysroot for C headers by default; set `RQUICKJS_SYS_NO_WASI_SDK=1` and provide your own `CC`/`AR`/`CFLAGS` if your toolchain already has an appropriate freestanding sysroot. |
 
 ## License
 

@@ -21,11 +21,13 @@ indexmap = { version = "2", optional = true }
 either = { version = "1", optional = true }
 async-lock = { version = "3", optional = true, default-features = false }
 chrono = { version = "0.4", optional = true }
-dlopen2 = { version = "0.8", optional = true }
 relative-path = { version = "2.0", optional = true, default-features = false, features = [
   "alloc",
 ] }
 half = { version = "2.7.1", optional = true }
+
+[target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dependencies]
+dlopen2 = { version = "0.8", optional = true }
 
 [dev-dependencies]
 futures-rs = { package = "futures", version = "0.3" }
@@ -47,8 +49,14 @@ std = ["relative-path?/std"]
 # Almost all features excluding "parallel" and support for async runtimes
 full = ["std", "chrono", "loader", "dyn-load", "either", "indexmap", "half"]
 
+# A version of full designed for wasm hosts without a native filesystem or dynamic loading.
+full-wasm = ["std", "chrono", "loader", "either", "indexmap", "half"]
+
 # Almost all features excluding "parallel"
 full-async = ["full", "futures"]
+
+# A version of full-async designed for wasm hosts without a native filesystem or dynamic loading.
+full-async-wasm = ["full-wasm", "futures"]
 
 # Enable conversion of chrono types to/from JS
 chrono = ["dep:chrono"]
@@ -64,7 +72,7 @@ parallel = ["std", "tokio/rt-multi-thread"]
 loader = ["relative-path"]
 
 # Enable native module loading support
-dyn-load = ["loader", "dlopen2"]
+dyn-load = ["loader", "dep:dlopen2"]
 
 # Use Rust global allocator by default
 # otherwise libc allocator will be used

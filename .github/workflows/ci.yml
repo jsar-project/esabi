@@ -255,6 +255,12 @@ jobs:
             rust: nightly
             target: wasm32-wasip2
             features: full-async-wasi
+          - task: bindings
+            os: ubuntu-latest
+            rust: stable
+            target: wasm32-unknown-unknown
+            features: full-async-wasm
+            no-test: true
 
           # Test features
           - task: features

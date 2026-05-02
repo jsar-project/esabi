@@ -147,8 +147,13 @@ fn main() {
     #[cfg(feature = "disable-assertions")]
     defines.push(("NDEBUG".into(), None));
 
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
     let target_env = env::var("CARGO_CFG_TARGET_ENV").unwrap();
+    let target_family = env::var("CARGO_CFG_TARGET_FAMILY").unwrap_or_default();
+    let is_wasi = target_os == "wasi";
+    let is_wasm_unknown =
+        target_arch == "wasm32" && target_os == "unknown" && target_family == "wasm";
 
     let mut builder = cc::Build::new();
     builder
@@ -194,12 +199,16 @@ fn main() {
         }
     }
 
-    if target_os == "wasi" {
-        // pretend we're emscripten - there are already ifdefs that match
-        // also, wasi doesn't ahve FE_DOWNWARD or FE_UPWARD
+    if is_wasi || is_wasm_unknown {
+        // Reuse the existing wasm-compatible QuickJS branches for targets without
+        // a full native libc / pthread environment.
         defines.push(("EMSCRIPTEN".into(), Some("1")));
         defines.push(("FE_DOWNWARD".into(), Some("0")));
         defines.push(("FE_UPWARD".into(), Some("0")));
+    }
+
+    if is_wasm_unknown {
+        defines.push(("RQUICKJS_WASM_FREESTANDING".into(), Some("1")));
     }
 
     for file in source_files.iter().chain(header_files.iter()) {
@@ -208,7 +217,7 @@ fn main() {
     }
     fs::copy("quickjs.bind.h", out_dir.join("quickjs.bind.h")).expect("Unable to copy source");
 
-    if target_os == "wasi" && !matches!(env::var("RQUICKJS_SYS_NO_WASI_SDK").as_deref(), Ok("1")) {
+    if is_wasi && !matches!(env::var("RQUICKJS_SYS_NO_WASI_SDK").as_deref(), Ok("1")) {
         let wasi_sdk_path = get_wasi_sdk_path();
         if !wasi_sdk_path.try_exists().unwrap() {
             panic!(
@@ -224,6 +233,33 @@ fn main() {
         );
         env::set_var("CFLAGS", &sysroot);
         bindgen_cflags.push(sysroot);
+    }
+
+    if is_wasm_unknown && !matches!(env::var("RQUICKJS_SYS_NO_WASI_SDK").as_deref(), Ok("1")) {
+        let wasi_sdk_path = get_wasi_sdk_path();
+        if !wasi_sdk_path.try_exists().unwrap() {
+            panic!(
+                "wasi-sdk not installed in specified path of {}",
+                wasi_sdk_path.display()
+            );
+        }
+
+        let clang = wasi_sdk_path.join("bin/clang");
+        let ar = wasi_sdk_path.join("bin/ar");
+        let include_dir = wasi_sdk_path.join("share/wasi-sysroot/include/wasm32-wasi");
+        let cflags = format!(
+            "--target=wasm32-unknown-unknown -D__wasi__ -I{}",
+            include_dir.display()
+        );
+
+        env::set_var("CC", clang.to_str().unwrap());
+        env::set_var("AR", ar.to_str().unwrap());
+        env::set_var("CFLAGS", &cflags);
+        bindgen_cflags.push("--target=wasm32-unknown-unknown".into());
+        bindgen_cflags.push("-D__wasi__".into());
+        bindgen_cflags.push(format!("-I{}", include_dir.display()));
+    } else if is_wasm_unknown {
+        bindgen_cflags.push("--target=wasm32-unknown-unknown".into());
     }
 
     // generating bindings
@@ -333,7 +369,11 @@ where
         .blocklist_type("FILE")
         .blocklist_function("JS_DumpMemoryUsage");
 
-    if env::var("CARGO_CFG_TARGET_OS").unwrap() == "wasi" {
+    if matches!(
+        env::var("CARGO_CFG_TARGET_OS").as_deref(),
+        Ok("wasi") | Ok("unknown")
+    ) && env::var("CARGO_CFG_TARGET_ARCH").as_deref() == Ok("wasm32")
+    {
         builder = builder.clang_arg("-fvisibility=default");
     }
 

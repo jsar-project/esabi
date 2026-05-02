@@ -5,7 +5,12 @@ authors = ["K. <kayo@illumium.org>"]
 edition = "2018"
 publish = false
 
-[dependencies.rquickjs]
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies.rquickjs]
+path = "../.."
+default-features = false
+features = ["futures", "rust-alloc", "loader", "std"]
+
+[target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dependencies.rquickjs]
 path = "../.."
 default-features = false
 features = ["futures", "rust-alloc", "loader", "dyn-load", "std"]

@@ -11,23 +11,29 @@ mod builtin_resolver;
 pub mod bundle;
 mod compile;
 #[cfg(feature = "std")]
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 mod file_resolver;
 mod module_loader;
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 mod script_loader;
 mod util;
 
 #[cfg(feature = "dyn-load")]
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 mod native_loader;
 
 pub use builtin_loader::BuiltinLoader;
 pub use builtin_resolver::BuiltinResolver;
 pub use compile::Compile;
 #[cfg(feature = "std")]
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 pub use file_resolver::FileResolver;
 pub use module_loader::ModuleLoader;
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 pub use script_loader::ScriptLoader;
 
 #[cfg(feature = "dyn-load")]
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 #[cfg_attr(feature = "doc-cfg", doc(cfg(feature = "dyn-load")))]
 pub use native_loader::NativeLoader;
 

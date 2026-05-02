@@ -30,3 +30,7 @@ The following environment variables can be used to control which WASI SDK is usi
 - `WASI_SDK`: Path to the WASI SDK to use during the build. If unset, this crate will download it automatically instead.
 - `RQUICKJS_SYS_NO_WASI_SDK`: If set to `1`, this crate will not attempt to use the WASI SDK
   and instead the `CC`, `AR`, and `CFLAGS` environment variables must be appropriately set.
+
+For `wasm32-unknown-unknown`, the SDK is used as a source of libc headers by default so QuickJS can
+be compiled for a freestanding wasm target. The produced Rust artifact still targets
+`wasm32-unknown-unknown`; only the C compilation step borrows the WASI sysroot headers.

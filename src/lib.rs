@@ -41,9 +41,13 @@
 //! should implements [`Resolver`](loader::Resolver) and [Loader](loader::Loader) traits
 //! respectively and can be plugged in already existing [`Runtime`] before loading modules via
 //! [`Runtime::set_loader`]. The resolvers and loaders can be easily combined via tuples. When the
-//! previous resolver or loader failed the next one will be applied.
+//! previous resolver or loader failed the next one will be applied. On `wasm32-unknown-unknown`,
+//! filesystem-backed helpers such as `FileResolver` and `ScriptLoader` are intentionally not
+//! exported; use custom in-memory loaders or `loader::bundle` instead.
 //!
-//! - `dyn-load` adds support for loadable native modules (so/dll/dylib).
+//! - `dyn-load` adds support for loadable native modules (so/dll/dylib). This feature is only
+//! available on targets with native dynamic library loading and is not exported on
+//! `wasm32-unknown-unknown`.
 //!
 //! - `futures` adds support for async Rust. When enabled the library exports [`AsyncRuntime`] and
 //! [`AsyncContext`]. These are the asynchronous variants of the normal runtime and context. In
@@ -92,6 +96,10 @@
 //!   - `x86_64-pc-windows-gnu`
 //!   - `i686-pc-windows-msvc`
 //!   - `x86_64-pc-windows-msvc`
+//! - WebAssembly:
+//!   - `wasm32-unknown-unknown`
+//!   - `wasm32-wasip1`
+//!   - `wasm32-wasip2`
 //!
 //! To build the crate for any other target you must enable the `bindgen` feature.
 //!
