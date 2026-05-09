@@ -44,7 +44,44 @@
             <p class="pane-title">Output</p>
           </div>
 
-          <pre class="output-view" :class="{ error: Boolean(runResult?.error) }">{{ outputText }}</pre>
+          <div class="output-sections">
+            <section class="output-section">
+              <p class="output-label">Result</p>
+              <pre class="output-view">{{ display.resultText }}</pre>
+            </section>
+
+            <section class="output-section" :class="{ active: display.hasError }">
+              <p class="output-label">Error</p>
+              <div class="error-fields">
+                <div class="error-field">
+                  <p class="error-key">kind</p>
+                  <pre class="output-view error-view" :class="{ error: display.hasError }">{{ display.errorKindText }}</pre>
+                </div>
+                <div class="error-field">
+                  <p class="error-key">name</p>
+                  <pre class="output-view error-view" :class="{ error: display.hasError }">{{ display.errorNameText }}</pre>
+                </div>
+                <div class="error-field">
+                  <p class="error-key">message</p>
+                  <pre class="output-view error-view" :class="{ error: display.hasError }">{{ display.errorMessageText }}</pre>
+                </div>
+                <div class="error-field">
+                  <p class="error-key">stack</p>
+                  <pre class="output-view error-view" :class="{ error: display.hasError }">{{ display.errorStackText }}</pre>
+                </div>
+              </div>
+            </section>
+
+            <section class="output-section">
+              <p class="output-label">stdout</p>
+              <pre class="output-view">{{ display.stdoutText }}</pre>
+            </section>
+
+            <section class="output-section">
+              <p class="output-label">stderr</p>
+              <pre class="output-view">{{ display.stderrText }}</pre>
+            </section>
+          </div>
         </section>
       </div>
     </main>
@@ -53,6 +90,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { formatRunResultDisplay } from '../../playground-app/src/display';
 import { initPlayground, listSamples, loadSample, resetPlayground, runSource } from '../../playground-app/src/runner';
 import type { RunResult, SampleMeta, SamplePayload } from '../../playground-app/src/types';
 
@@ -64,37 +102,7 @@ const activeSample = ref<SamplePayload | null>(null);
 const source = ref('');
 const runResult = ref<RunResult | null>(null);
 
-const stdoutText = computed(() => (runResult.value?.stdout.length ? runResult.value.stdout.join('\n') : 'No stdout yet.'));
-const errorText = computed(() => {
-  const error = runResult.value?.error;
-  if (!error) {
-    return 'No errors.';
-  }
-  return [error.kind, `${error.name}: ${error.message}`, error.stack ?? ''].filter(Boolean).join('\n\n');
-});
-const outputText = computed(() => {
-  const error = runResult.value?.error;
-  if (error) {
-    return errorText.value;
-  }
-
-  const sections: string[] = [];
-  const result = runResult.value?.result;
-  const stdout = runResult.value?.stdout?.length ? runResult.value.stdout.join('\n') : '';
-  const stderr = runResult.value?.stderr?.length ? runResult.value.stderr.join('\n') : '';
-
-  if (result) {
-    sections.push(result);
-  }
-  if (stdout) {
-    sections.push(`stdout:\n${stdout}`);
-  }
-  if (stderr) {
-    sections.push(`stderr:\n${stderr}`);
-  }
-
-  return sections.length ? sections.join('\n') : '>';
-});
+const display = computed(() => formatRunResultDisplay(runResult.value));
 
 function onSampleChange(event: Event): void {
   const target = event.target as HTMLSelectElement | null;
@@ -348,6 +356,61 @@ button {
   overflow: hidden;
 }
 
+.output-sections {
+  display: grid;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  min-height: 0;
+  overflow: auto;
+}
+
+.output-section {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.output-section:last-child {
+  border-bottom: 0;
+}
+
+.output-section.active {
+  background: rgba(127, 29, 29, 0.16);
+}
+
+.output-label,
+.error-key {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.error-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.error-field {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  border-right: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.error-field:nth-child(2n) {
+  border-right: 0;
+}
+
+.error-key {
+  padding-bottom: 0.45rem;
+}
+
 .output-view {
   box-sizing: border-box;
   height: 100%;
@@ -366,6 +429,10 @@ button {
   color: #fca5a5;
 }
 
+.error-view {
+  padding-top: 0;
+}
+
 @media (max-width: 1240px) {
   .ide-bar {
     align-items: stretch;
@@ -378,6 +445,10 @@ button {
   .workspace-main {
     grid-template-columns: 1fr;
     min-height: auto;
+  }
+
+  .output-sections {
+    grid-template-rows: repeat(4, minmax(140px, auto));
   }
 }
 
@@ -400,6 +471,14 @@ button {
 
   .editor {
     height: 460px;
+  }
+
+  .error-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .error-field {
+    border-right: 0;
   }
 }
 </style>

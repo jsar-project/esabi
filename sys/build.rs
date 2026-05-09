@@ -144,6 +144,12 @@ fn main() {
 
     let mut defines: Vec<(String, Option<&str>)> = vec![("_GNU_SOURCE".into(), None)];
 
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=quickjs.bind.h");
+    for file in source_files.iter().chain(header_files.iter()) {
+        println!("cargo:rerun-if-changed={}", src_dir.join(file).display());
+    }
+
     #[cfg(feature = "disable-assertions")]
     defines.push(("NDEBUG".into(), None));
 

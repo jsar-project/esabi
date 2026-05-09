@@ -1,15 +1,18 @@
 use std::{cell::RefCell, rc::Rc};
 
 use rquickjs::{
+    context::EvalOptions,
     function::Rest,
     loader::{BuiltinLoader, BuiltinResolver, ModuleLoader},
     module::{Declarations, Exports, ModuleDef},
-    Coerced, Context, Ctx, Exception, Function, Module, Object, Result as JsResult, Runtime,
+    Coerced, Context, Ctx, Function, Module, Object, Result as JsResult, Runtime,
 };
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 
 const BUILTIN_MODULE_NAME: &str = "playground/builtin/loader";
+const PLAYGROUND_SCRIPT_NAME: &str = "playground-entry.js";
+const PLAYGROUND_MODULE_NAME: &str = "playground-entry.mjs";
 const BUILTIN_MODULE_SOURCE: &str = r#"
 export const label = 'module loader';
 export function meaning() {
@@ -63,7 +66,7 @@ console.log('About to throw');
 throw new TypeError('Playground demo failure');
 "#;
 
-#[derive(Clone, Copy, Serialize)]
+#[derive(Clone, Copy, Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
 enum SampleMode {
     Script,
@@ -98,7 +101,7 @@ struct SamplePayload {
     notes: &'static [&'static str],
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct RunError {
     kind: &'static str,
     name: String,
@@ -106,7 +109,7 @@ struct RunError {
     stack: Option<String>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct RunResult {
     ok: bool,
     mode: SampleMode,
@@ -196,11 +199,14 @@ const SAMPLES: &[Sample] = &[
     },
     Sample {
         id: "error-demo",
-        title: "Structured Error",
-        summary: "Show structured syntax and runtime exception handling.",
+        title: "Runtime Exception",
+        summary: "Show structured runtime exception handling.",
         mode: SampleMode::Script,
         source: ERROR_SOURCE,
-        notes: &["Run this sample to verify stack capture and error rendering."],
+        notes: &[
+            "Run this sample to verify structured exception fields such as name, message, and stack.",
+            "Edit the source in the playground if you also want to inspect how malformed JavaScript is reported.",
+        ],
     },
 ];
 
@@ -408,6 +414,11 @@ impl Playground {
     }
 
     fn run(&self, source: &str, sample_id: Option<&str>) -> Result<JsValue, JsValue> {
+        let result = self.run_result(source, sample_id);
+        to_js(&result)
+    }
+
+    fn run_result(&self, source: &str, sample_id: Option<&str>) -> RunResult {
         self.stdout.borrow_mut().clear();
         self.stderr.borrow_mut().clear();
 
@@ -416,17 +427,21 @@ impl Playground {
             .map(|sample| sample.mode)
             .unwrap_or(SampleMode::Script);
 
-        let result = self.context.with(|ctx| {
+        self.context.with(|ctx| {
             let globals = ctx.globals();
             let _ = globals.set("__playgroundResult", ());
 
             match mode {
-                SampleMode::Script => match ctx.eval::<Coerced<String>, _>(source) {
-                    Ok(value) => self.success_result(mode, Some(value.0)),
-                    Err(error) => self.execution_error(&ctx, error, mode),
-                },
+                SampleMode::Script => {
+                    let mut options = EvalOptions::default();
+                    options.filename = Some(String::from(PLAYGROUND_SCRIPT_NAME));
+                    match ctx.eval_with_options::<Coerced<String>, _>(source, options) {
+                        Ok(value) => self.success_result(mode, Some(value.0)),
+                        Err(error) => self.execution_error(&ctx, error, mode),
+                    }
+                }
                 SampleMode::Module => {
-                    match Module::evaluate(ctx.clone(), "playground-entry", source) {
+                    match Module::evaluate(ctx.clone(), PLAYGROUND_MODULE_NAME, source) {
                         Ok(promise) => match promise.finish::<()>() {
                             Ok(()) => {
                                 let result = globals
@@ -443,9 +458,7 @@ impl Playground {
                     }
                 }
             }
-        });
-
-        to_js(&result)
+        })
     }
 
     fn success_result(&self, mode: SampleMode, result: Option<String>) -> RunResult {
@@ -465,19 +478,58 @@ impl Playground {
         error: rquickjs::Error,
         mode: SampleMode,
     ) -> RunResult {
-        let exception = ctx.catch().into_object().and_then(Exception::from_object);
-        let (name, message, stack) = if let Some(exception) = exception {
-            let name = exception
-                .as_object()
-                .get::<_, Option<Coerced<String>>>("name")
-                .ok()
-                .flatten()
-                .map(|value| value.0)
-                .unwrap_or_else(|| String::from("Error"));
-            let message = exception.message().unwrap_or_else(|| error.to_string());
-            (name, message, exception.stack())
-        } else {
-            (String::from("InternalError"), error.to_string(), None)
+        let (kind, name, message, stack) = match rquickjs::CaughtError::from_error(ctx, error) {
+            rquickjs::CaughtError::Exception(exception) => {
+                let name = exception
+                    .as_object()
+                    .get::<_, Option<Coerced<String>>>("name")
+                    .ok()
+                    .flatten()
+                    .map(|value| value.0)
+                    .unwrap_or_else(|| String::from("Error"));
+                let message = exception
+                    .message()
+                    .unwrap_or_else(|| String::from("JavaScript exception"));
+                ("execution", name, message, exception.stack())
+            }
+            rquickjs::CaughtError::Value(value) => {
+                let object = value.as_object();
+                let name = object
+                    .as_ref()
+                    .and_then(|object| {
+                        object
+                            .get::<_, Option<Coerced<String>>>("name")
+                            .ok()
+                            .flatten()
+                            .map(|value| value.0)
+                    })
+                    .unwrap_or_else(|| String::from("ThrownValue"));
+                let message = object
+                    .as_ref()
+                    .and_then(|object| {
+                        object
+                            .get::<_, Option<Coerced<String>>>("message")
+                            .ok()
+                            .flatten()
+                            .map(|value| value.0)
+                    })
+                    .or_else(|| value.get::<Coerced<String>>().ok().map(|value| value.0))
+                    .unwrap_or_else(|| String::from("JavaScript threw a non-Error value"));
+                let stack = object.as_ref().and_then(|object| {
+                    object
+                        .get::<_, Option<Coerced<String>>>("stack")
+                        .ok()
+                        .flatten()
+                        .map(|value| value.0)
+                });
+                ("execution", name, message, stack)
+            }
+            rquickjs::CaughtError::Error(error) => (
+                "internal",
+                String::from("InternalError"),
+                error.to_string(),
+                None,
+            ),
         };
 
         RunResult {
@@ -487,7 +539,7 @@ impl Playground {
             stdout: self.stdout.borrow().clone(),
             stderr: self.stderr.borrow().clone(),
             error: Some(RunError {
-                kind: "execution",
+                kind,
                 name,
                 message,
                 stack,
@@ -552,4 +604,38 @@ fn to_js<T: Serialize>(value: &T) -> Result<JsValue, JsValue> {
 
 fn js_error(error: impl ToString) -> JsValue {
     JsValue::from_str(&error.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reports_type_error_as_structured_exception() {
+        let playground = Playground::new().unwrap();
+        let result = playground.run_result("throw new TypeError('Playground demo failure')", None);
+
+        assert!(!result.ok);
+        let error = result.error.expect("expected structured error");
+        assert_eq!(error.kind, "execution");
+        assert_eq!(error.name, "TypeError");
+        assert_eq!(error.message, "Playground demo failure");
+        let stack = error.stack.expect("expected stack for Error exceptions");
+        assert!(!stack.trim().is_empty());
+        assert!(stack.contains("<eval>"));
+        assert!(stack.contains(PLAYGROUND_SCRIPT_NAME));
+    }
+
+    #[test]
+    fn reports_non_error_throw_value() {
+        let playground = Playground::new().unwrap();
+        let result = playground.run_result("throw 'plain failure'", None);
+
+        assert!(!result.ok);
+        let error = result.error.expect("expected structured error");
+        assert_eq!(error.kind, "execution");
+        assert_eq!(error.name, "ThrownValue");
+        assert_eq!(error.message, "plain failure");
+        assert!(error.stack.is_none());
+    }
 }
