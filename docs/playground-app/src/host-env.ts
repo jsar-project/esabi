@@ -28,6 +28,8 @@ export const lrint = (...args: [number]) => env.lrint(...args);
 export const acosh = (...args: [number]) => env.acosh(...args);
 export const asinh = (...args: [number]) => env.asinh(...args);
 export const atanh = (...args: [number]) => env.atanh(...args);
+export const rquickjs_browser_date_now_us = (...args: []) => env.rquickjs_browser_date_now_us(...args);
+export const rquickjs_browser_hrtime_ns = (...args: []) => env.rquickjs_browser_hrtime_ns(...args);
 export const localtime_r = (...args: [number, number]) => env.localtime_r(...args);
 export const __assert_fail = (...args: [number, number, number, number]) =>
   env.__assert_fail(...args);

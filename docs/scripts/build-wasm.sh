@@ -111,6 +111,17 @@ function fillTimeStruct(tmPtr, date) {
   return tmPtr;
 }
 
+function dateNowUs() {
+  return BigInt(Date.now()) * 1000n;
+}
+
+function hrtimeNs() {
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+    return BigInt(Math.floor(performance.now() * 1_000_000));
+  }
+  return BigInt(Date.now()) * 1_000_000n;
+}
+
 export function setRquickjsMemory(nextMemory) {
   memory = nextMemory;
   if (heapTop >= bytes().byteLength) {
@@ -237,6 +248,12 @@ export function installRquickjsEnv(env = {}) {
     acosh: Math.acosh,
     asinh: Math.asinh,
     atanh: Math.atanh,
+    rquickjs_browser_date_now_us() {
+      return dateNowUs();
+    },
+    rquickjs_browser_hrtime_ns() {
+      return hrtimeNs();
+    },
     localtime_r(timePtr, tmPtr) {
       const seconds = Number(new DataView(requireMemory().buffer).getBigInt64(timePtr, true));
       return fillTimeStruct(tmPtr, new Date(seconds * 1000));
